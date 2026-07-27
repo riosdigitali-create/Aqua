@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Gracias por tu compra · AQUAMID</title>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<style>
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@600,500&f[]=general-sans@400,500,600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:radial-gradient(90% 70% at 50% 0,rgba(30,80,190,.35),transparent 60%),#05070d;color:#f4f8ff;
+  font-family:'General Sans',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:520px;width:100%;text-align:center;border:1px solid rgba(120,150,210,.16);border-radius:26px;
+  background:linear-gradient(180deg,#0a1120,#070b14);padding:48px 34px;box-shadow:0 40px 120px -30px rgba(0,0,0,.7)}
+.ic{width:90px;height:90px;border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center}
+.ic svg{width:48px;height:48px}
+.ok{background:radial-gradient(circle,rgba(49,214,122,.25),transparent 70%)}.ok svg{color:#31d67a}
+.pend{background:radial-gradient(circle,rgba(255,190,60,.22),transparent 70%)}.pend svg{color:#ffbe3c}
+.err{background:radial-gradient(circle,rgba(255,107,107,.22),transparent 70%)}.err svg{color:#ff6b6b}
+h1{font-family:'Clash Display';font-size:32px;letter-spacing:-.02em;margin-bottom:12px}
+p{color:#93a4c4;font-size:16px;line-height:1.6}
+.pill{display:inline-block;margin-top:18px;font-size:13px;letter-spacing:.06em;color:#63e6ff;font-family:'Satoshi',sans-serif}
+.btns{margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:15px 26px;border-radius:100px;text-decoration:none;color:#f4f8ff;border:1px solid rgba(120,150,210,.2)}
+.btn.primary{background:linear-gradient(120deg,#2f7bff,#63e6ff);color:#04122e;border:none}
+.wa{background:linear-gradient(120deg,#25d366,#0fb84f);color:#03210f;border:none}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;font-family:'Clash Display';font-weight:600;font-size:22px;margin-bottom:30px}
+.brand svg{width:24px;height:28px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <svg viewBox="0 0 26 30" fill="none"><path d="M13 1 24 5v10c0 8-5.5 12-11 14C6.5 27 2 23 2 15V5L13 1Z" stroke="#63e6ff" stroke-width="1.6"/><path d="M8 15l3.5 3.5L18 11" stroke="#63e6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      AQUAMID
+    </div>
+    <div id="icon" class="ic ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h1 id="title">¡Gracias por tu compra!</h1>
+    <p id="msg">Tu pago fue aprobado. En breve te contactamos para confirmar el envío de tu AQUAMID.</p>
+    <div class="pill" id="pill"></div>
+    <div class="btns">
+      <a class="btn wa" id="waBtn" href="https://wa.me/529999093173?text=Hola%2C%20acabo%20de%20realizar%20mi%20compra%20de%20AQUAMID" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>
+      <a class="btn primary" href="/index.html">Volver a la tienda</a>
+    </div>
+  </div>
+<script>
+  const q=new URLSearchParams(location.search);
+  const status=(q.get('status')||q.get('collection_status')||'approved').toLowerCase();
+  const pay=q.get('payment_id')||q.get('collection_id')||'';
+  const icon=document.getElementById('icon'), title=document.getElementById('title'), msg=document.getElementById('msg'), pill=document.getElementById('pill');
+  if(status==='approved'){
+    icon.className='ic ok';
+    title.textContent='¡Gracias por tu compra!';
+    msg.textContent='Tu pago fue aprobado. Prepararemos tu envío y te contactamos para darte seguimiento.';
+  }else if(status==='pending'||status==='in_process'){
+    icon.className='ic pend';
+    icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>';
+    title.textContent='Pago en proceso';
+    msg.textContent='Tu pago está pendiente de confirmación (por ejemplo, pago en OXXO o transferencia). En cuanto se acredite, procesamos tu envío.';
+  }else{
+    icon.className='ic err';
+    icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>';
+    title.textContent='El pago no se completó';
+    msg.textContent='No se pudo procesar el pago. Puedes intentarlo de nuevo o escribirnos por WhatsApp para ayudarte.';
+  }
+  if(pay) pill.textContent='Referencia de pago: '+pay;
+</script>
+</body>
+</html>
