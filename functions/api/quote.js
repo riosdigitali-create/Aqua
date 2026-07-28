@@ -83,19 +83,29 @@ export async function onRequestPost(context) {
         lengthUnit: 'CM',
         dimensions: { length: BOX.length, width: BOX.width, height: BOX.height }
       }],
-      shipment: { carrier: '', type: 1 },
-      settings: { printFormat: 'PDF', printSize: 'STOCK_4X6', comments: '' }
+      shipment: { type: 1 },
+      settings: { currency: 'MXN' }
     };
 
-    const r = await fetch('https://api.envia.com/ship/rate/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-      body: JSON.stringify(payload)
-    });
-    const data = await r.json();
+    // Envia falla si mandas carrier vacío. Cotizamos con las paqueterías principales
+    // en paralelo y juntamos todos los resultados.
+    const CARRIERS = ['estafeta', 'fedex', 'dhl', 'redpack', 'paquetexpress'];
+    const calls = CARRIERS.map(c =>
+      fetch('https://api.envia.com/ship/rate/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ ...payload, shipment: { type: 1, carrier: c } })
+      }).then(res => res.json()).catch(() => null)
+    );
+    const results = await Promise.all(calls);
 
-    // Envia devuelve la lista en data.data (mapeo defensivo por si cambian nombres)
-    const list = Array.isArray(data?.data) ? data.data : [];
+    const list = [];
+    const errors = [];
+    for (const data of results) {
+      if (Array.isArray(data?.data)) list.push(...data.data);
+      else if (data?.error) errors.push(data.error.message || data.error.description);
+    }
+
     const rates = list.map((x, i) => ({
       id: String(x.rate_id ?? x.id ?? i),
       carrier: x.carrier || x.carrierName || 'Paquetería',
@@ -110,9 +120,8 @@ export async function onRequestPost(context) {
         rates: fallbackRates(),
         fallback: true,
         note: 'Sin tarifas de Envia; usando ejemplo.',
-        enviaStatus: r.status,
-        enviaMessage: data?.message || data?.meta || null,
-        enviaRaw: JSON.stringify(data).slice(0, 1500)
+        enviaErrors: errors.slice(0, 5),
+        enviaRaw: JSON.stringify(results).slice(0, 1500)
       });
     }
     return json({ rates });
