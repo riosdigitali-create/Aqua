@@ -111,7 +111,8 @@ export async function onRequestPost(context) {
         fallback: true,
         note: 'Sin tarifas de Envia; usando ejemplo.',
         enviaStatus: r.status,
-        enviaMessage: data?.message || data?.meta || null
+        enviaMessage: data?.message || data?.meta || null,
+        enviaRaw: JSON.stringify(data).slice(0, 1500)
       });
     }
     return json({ rates });
