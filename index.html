@@ -107,6 +107,16 @@ section{position:relative;padding:clamp(90px,13vh,170px) clamp(20px,5vw,80px)}
 
 /* ---------- HERO ---------- */
 #hero{min-height:100vh;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:20px;padding-top:120px;padding-bottom:40px}
+
+/* video de fondo del hero (carga diferida, se desvanece al entrar) */
+.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.hero-bg video{width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);
+  filter:saturate(.55) brightness(.62) contrast(1.06);
+  transition:opacity 1.6s var(--easing),transform 14s linear}
+.hero-bg video.on{opacity:1;transform:scale(1)}
+.hero-bg:after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(5,7,13,.94) 0%,rgba(5,7,13,.78) 34%,rgba(5,7,13,.42) 62%,rgba(6,14,34,.3) 100%),
+             linear-gradient(180deg,rgba(5,7,13,.85) 0%,transparent 26%,transparent 62%,rgba(5,7,13,.96) 100%)}
 .hero-copy{max-width:720px;z-index:3}
 .hero-h1{font-size:clamp(52px,8.4vw,148px);font-weight:600;line-height:.9}
 .hero-h1 .grad{background:linear-gradient(120deg,#fff 20%,var(--cyan) 60%,var(--blue-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -693,6 +703,9 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
 
   <!-- ===== HERO ===== -->
   <section id="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <video id="heroVideo" muted loop playsinline preload="none" disablepictureinpicture tabindex="-1"></video>
+    </div>
     <div class="hero-copy">
       <span class="eyebrow reveal">Desinfectante para tinacos · Tecnología DUAL</span>
       <h1 class="hero-h1">
@@ -2023,6 +2036,54 @@ window.addEventListener('load',()=>{
       'Entrega estimada: '+rc.eta;
     window.open('https://wa.me/'+order.wa+'?text='+encodeURIComponent(msg).replace(/%250A/g,'%0A'),'_blank','noopener');
   });
+})();
+</script>
+
+<!-- ===== Video de fondo del hero: carga diferida y sin bloquear ===== -->
+<script>
+(function(){
+  var v = document.getElementById('heroVideo');
+  if(!v) return;
+
+  // Respetar "reducir movimiento" y ahorro de datos / conexiones lentas
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  var slow = c && (c.saveData === true || /(^|-)(2g|slow-2g)$/.test(c.effectiveType||''));
+  if(reduce || slow) return;   // se queda el fondo actual, sin degradar nada
+
+  // 960x506 ≈ 1.9 MB. Como va oscurecido y a pantalla completa, no se nota vs HD.
+  var SRC = 'https://videos.pexels.com/video-files/1181911/1181911-sd_960_506_24fps.mp4';
+
+  function start(){
+    v.addEventListener('canplay', function(){
+      v.classList.add('on');
+      var p = v.play();
+      if(p && p.catch) p.catch(function(){});
+    }, { once:true });
+
+    // Si tarda o falla, simplemente no se muestra: el hero queda como está.
+    var kill = setTimeout(function(){ if(v.readyState < 3){ v.removeAttribute('src'); v.load(); } }, 9000);
+    v.addEventListener('canplay', function(){ clearTimeout(kill); }, { once:true });
+    v.addEventListener('error', function(){ clearTimeout(kill); }, { once:true });
+
+    v.src = SRC;
+    v.load();
+  }
+
+  // Esperar a que la página termine de cargar para no competir por ancho de banda
+  if(document.readyState === 'complete') setTimeout(start, 600);
+  else window.addEventListener('load', function(){ setTimeout(start, 600); });
+
+  // Pausar cuando el hero no está a la vista (ahorra batería y CPU)
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!v.src) return;
+        if(e.isIntersecting){ var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
+        else v.pause();
+      });
+    }, { threshold:0.05 }).observe(document.getElementById('hero'));
+  }
 })();
 </script>
 </body>
