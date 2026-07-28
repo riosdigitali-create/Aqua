@@ -106,14 +106,28 @@ export async function onRequestPost(context) {
       else if (data?.error) errors.push(data.error.message || data.error.description);
     }
 
-    const rates = list.map((x, i) => ({
-      id: String(x.rate_id ?? x.id ?? i),
-      carrier: x.carrier || x.carrierName || 'Paquetería',
-      service: x.service || x.serviceDescription || x.serviceName || '',
-      price: Math.ceil(Number(x.totalPrice ?? x.total_amount ?? x.amount ?? 0)),
-      days: Number(x.deliveryEstimate ?? x.days ?? 3),
-      eta: (x.deliveryEstimate ? (x.deliveryEstimate + ' días hábiles') : '3 a 5 días hábiles')
-    })).filter(x => x.price > 0).sort((a, b) => a.price - b.price);
+    const all = list.map((x, i) => {
+      const carrierRaw = String(x.carrier || x.carrierName || 'paqueteria').toLowerCase();
+      const serviceRaw = String(x.service || x.serviceName || '').toLowerCase();
+      return {
+        id: carrierRaw + '-' + (x.serviceId ?? x.rate_id ?? x.id ?? i),
+        carrierId: carrierRaw,
+        serviceId: serviceRaw,
+        carrier: CARRIER_NAME[carrierRaw] || cap(carrierRaw),
+        service: serviceLabel(serviceRaw),
+        price: Math.ceil(Number(x.totalPrice ?? x.total_amount ?? x.amount ?? 0)),
+        days: parseDays(x.deliveryEstimate),
+        eta: cleanEta(x.deliveryEstimate)
+      };
+    }).filter(x => x.price > 0).sort((a, b) => a.price - b.price);
+
+    // Una sola opción (la más barata) por paquetería, para no abrumar al cliente.
+    const seen = new Set();
+    const rates = all.filter(x => {
+      if (seen.has(x.carrierId)) return false;
+      seen.add(x.carrierId);
+      return true;
+    }).slice(0, 4);
 
     if (!rates.length) {
       return json({
@@ -128,6 +142,45 @@ export async function onRequestPost(context) {
   } catch (e) {
     return json({ rates: fallbackRates(), fallback: true, error: String(e) });
   }
+}
+
+const CARRIER_NAME = {
+  estafeta: 'Estafeta',
+  fedex: 'FedEx',
+  dhl: 'DHL',
+  redpack: 'Redpack',
+  paquetexpress: 'Paquetexpress'
+};
+
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+function serviceLabel(s) {
+  if (!s) return 'Estándar';
+  if (s.includes('express_1030') || s.includes('express_1200')) return 'Express (hora fija)';
+  if (s.includes('express')) return 'Express';
+  if (s.includes('ground') || s.includes('terrestre')) return 'Terrestre';
+  if (s.includes('economy') || s.includes('economico')) return 'Económico';
+  if (s.includes('next') || s.includes('day')) return 'Día siguiente';
+  return cap(s.replace(/_/g, ' '));
+}
+
+function parseDays(est) {
+  const m = String(est || '').match(/(\d+)\s*-\s*(\d+)/);
+  if (m) return Number(m[2]);
+  const one = String(est || '').match(/(\d+)/);
+  if (one) return Number(one[1]);
+  return 3;
+}
+
+function cleanEta(est) {
+  const s = String(est || '').trim();
+  if (!s) return '3 a 5 días hábiles';
+  if (/siguiente/i.test(s)) return 'Día siguiente hábil';
+  const m = s.match(/(\d+)\s*-\s*(\d+)/);
+  if (m) return `${m[1]} a ${m[2]} días hábiles`;
+  const one = s.match(/^(\d+)/);
+  if (one) return `${one[1]} días hábiles`;
+  return s;
 }
 
 function fallbackRates() {
