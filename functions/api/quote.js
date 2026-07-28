@@ -1,9 +1,33 @@
 // Cloudflare Pages Function  ->  POST /api/quote
 // Cotiza el envío con Envia.com según el C.P. de destino.
-// Variables de entorno (Cloudflare > Pages > Settings > Environment variables):
-//   ENVIA_TOKEN   -> token de API de tu cuenta Envia.com
-//   ORIGIN_CP     -> C.P. desde donde envías (ej. 97000)
-//   ORIGIN_NAME   -> nombre del remitente (opcional)
+//
+// Variable de entorno requerida (Cloudflare > Pages > Settings > Variables and secrets):
+//   ENVIA_TOKEN  -> token de API de PRODUCCIÓN de la cuenta Envia.com
+//
+// Los datos del remitente están abajo en ORIGIN (no son secretos).
+
+export const ORIGIN = {
+  name: 'Aquamid',
+  company: 'Aquamid',
+  email: 'contacto@antisarro.shop',
+  phone: '9997221998',
+  street: 'Calle 71 A',
+  number: '951',
+  district: 'Nva Mulsay',
+  city: 'Merida',
+  state: 'YU',
+  country: 'MX',
+  postalCode: '97246',
+  reference: ''
+};
+
+// Caja y peso reales del producto
+export const BOX = {
+  weightPerUnitKg: 1,
+  length: 20,
+  width: 12,
+  height: 12
+};
 
 export async function onRequestOptions() {
   return cors(new Response(null, { status: 204 }));
@@ -19,25 +43,48 @@ export async function onRequestPost(context) {
     if (cp.length !== 5) return json({ error: 'C.P. inválido' }, 400);
 
     const TOKEN = env.ENVIA_TOKEN;
-    const ORIGIN_CP = env.ORIGIN_CP || '97000';
     // Sin token todavía -> devolvemos tarifas de ejemplo para que la tienda funcione.
-    if (!TOKEN) return json({ rates: fallbackRates(), fallback: true });
+    if (!TOKEN) return json({ rates: fallbackRates(), fallback: true, reason: 'sin ENVIA_TOKEN' });
 
     const payload = {
-      origin: { country_code: 'MX', postal_code: ORIGIN_CP },
-      destination: { country_code: 'MX', postal_code: cp },
+      origin: {
+        name: ORIGIN.name,
+        company: ORIGIN.company,
+        email: ORIGIN.email,
+        phone: ORIGIN.phone,
+        street: ORIGIN.street,
+        number: ORIGIN.number,
+        district: ORIGIN.district,
+        city: ORIGIN.city,
+        state: ORIGIN.state,
+        country: ORIGIN.country,
+        postalCode: ORIGIN.postalCode
+      },
+      destination: {
+        name: 'Cliente',
+        street: '-',
+        number: '-',
+        district: '-',
+        city: '-',
+        state: '-',
+        country: 'MX',
+        postalCode: cp,
+        phone: '0000000000',
+        email: 'cliente@antisarro.shop'
+      },
       packages: [{
         content: 'AQUAMID Anti Sarro',
         amount: qty,
         type: 'box',
-        weight: 1 * qty,          // kg por pieza (ajusta al peso real)
+        weight: BOX.weightPerUnitKg * qty,
+        insurance: 0,
+        declaredValue: unit * qty,
         weightUnit: 'KG',
         lengthUnit: 'CM',
-        dimensions: { length: 20, width: 12, height: 12 }, // cm (ajusta a tu caja)
-        declaredValue: unit * qty,
-        insurance: 0
+        dimensions: { length: BOX.length, width: BOX.width, height: BOX.height }
       }],
-      shipment: { type: 1 }
+      shipment: { carrier: '', type: 1 },
+      settings: { printFormat: 'PDF', printSize: 'STOCK_4X6', comments: '' }
     };
 
     const r = await fetch('https://api.envia.com/ship/rate/', {
@@ -58,7 +105,15 @@ export async function onRequestPost(context) {
       eta: (x.deliveryEstimate ? (x.deliveryEstimate + ' días hábiles') : '3 a 5 días hábiles')
     })).filter(x => x.price > 0).sort((a, b) => a.price - b.price);
 
-    if (!rates.length) return json({ rates: fallbackRates(), fallback: true, note: 'Sin tarifas de Envia; usando ejemplo.' });
+    if (!rates.length) {
+      return json({
+        rates: fallbackRates(),
+        fallback: true,
+        note: 'Sin tarifas de Envia; usando ejemplo.',
+        enviaStatus: r.status,
+        enviaMessage: data?.message || data?.meta || null
+      });
+    }
     return json({ rates });
   } catch (e) {
     return json({ rates: fallbackRates(), fallback: true, error: String(e) });
