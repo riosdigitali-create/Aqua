@@ -324,6 +324,51 @@ section{position:relative;padding:clamp(90px,13vh,170px) clamp(20px,5vw,80px)}
 .tcard .who .ct{font-size:12.5px;color:var(--muted-2)}
 @media(max-width:900px){.tgrid{columns:1}}
 
+/* ---------- parallax: la imagen se desliza un poco dentro de su marco ---------- */
+.tcard3 img,.cov-card .ph,.gcard img,.chg-frame img,.hw-img img,.guar-img img{
+  --par:0px;
+  will-change:transform}
+.tcard3 img{transform:scale(1.05) translateY(var(--par))}
+.tcard3:hover img{transform:scale(1.12) translateY(var(--par))}
+.cov-card .ph{transform:scale(1.04) translateY(var(--par))}
+.cov-card:hover .ph{transform:scale(1.11) translateY(var(--par))}
+.gcard img{transform:translateY(var(--par))}
+.gcard:hover img{transform:scale(1.06) translateY(var(--par))}
+.chg-frame.armed img{transform:scale(1.08) translateY(var(--par))}
+.chg-frame.armed.in img{transform:scale(1) translateY(var(--par))}
+.hw-img img{transform:translateY(var(--par))}
+.hw-img:hover img{transform:scale(1.05) translateY(var(--par))}
+.guar-img img{transform:translateY(var(--par))}
+.guar-img:hover img{transform:scale(1.04) translateY(var(--par))}
+
+/* ---------- reseñas estilo Google, en cintillo ---------- */
+.g-head{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:34px}
+.g-badge{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:100px;
+  padding:9px 18px 9px 14px;background:rgba(255,255,255,.05);backdrop-filter:blur(10px)}
+.g-badge .glogo{width:20px;height:20px;flex:none}
+.g-score{font-family:'Clash Display';font-weight:600;font-size:19px;line-height:1}
+.g-stars{color:#fbbc05;font-size:13px;letter-spacing:1.5px}
+.g-count{font-size:12.5px;color:var(--muted-2)}
+
+.rail{position:relative;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.rail-track{display:flex;gap:18px;width:max-content;animation:railRun 62s linear infinite}
+.rail:hover .rail-track{animation-play-state:paused}
+@keyframes railRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.rcard{flex:0 0 340px;border:1px solid var(--line);border-radius:18px;padding:24px;
+  background:var(--glass);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:12px}
+.rc-top{display:flex;align-items:center;gap:11px}
+.rc-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-weight:700;color:#04122e;font-size:14px;flex:none}
+.rc-who .nm{font-weight:600;font-size:14px}
+.rc-who .ct{font-size:12px;color:var(--muted-2)}
+.rc-g{margin-left:auto;width:17px;height:17px;flex:none;opacity:.85}
+.rc-stars{color:#fbbc05;font-size:13px;letter-spacing:1.5px}
+.rcard p{color:var(--muted);font-size:14.5px;line-height:1.55}
+@media(max-width:560px){.rcard{flex:0 0 280px;padding:20px}.rail-track{animation-duration:48s}}
+@media(prefers-reduced-motion:reduce){.rail-track{animation:none}.rail{overflow-x:auto}}
+
 /* ---------- offer / CTA ---------- */
 #comprar{max-width:1100px;margin:0 auto}
 
@@ -706,7 +751,11 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
 
   /* CARRITO */
   .cart-fab{right:16px;bottom:16px;width:54px;height:54px}
-  .cart-drawer{width:100vw}
+  /* 100vw incluye la barra de scroll y empujaba la página; 100% usa el ancho real */
+  .cart-drawer{width:100%;height:100dvh;max-width:100%}
+  .cart-head{padding:calc(18px + env(safe-area-inset-top)) 20px 16px}
+  .cart-body{padding:18px 20px}
+  .cart-foot{padding:18px 20px calc(18px + env(safe-area-inset-bottom))}
 
   /* ---- COMPACTAR: la página era demasiado larga en celular ---- */
   section{padding:52px 18px}
@@ -1135,19 +1184,98 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     </div>
   </section>
 
-  <!-- ===== TESTIMONIALS ===== -->
-  <section>
+  <!-- ===== RESEÑAS (Google) ===== -->
+  <section id="resenas">
     <div class="sec-head">
       <span class="eyebrow reveal" style="justify-content:center">Lo que dicen</span>
       <h2 class="reveal">Hogares que ya <span class="grad-ink">respiran tranquilos.</span></h2>
     </div>
-    <div class="tgrid">
-      <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Vivimos en zona de agua muy dura y el tinaco se llenaba de costras. Con AQUAMID el agua sale mucho más limpia y ya no batallo."</p><div class="who"><div class="av">MG</div><div><div class="nm">Mariana G.</div><div class="ct">Mérida, Yuc.</div></div></div></div>
-      <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Lo puse yo solo en cinco minutos. Medio año después el boiler sigue calentando como nuevo. Vale cada peso."</p><div class="who"><div class="av">JR</div><div><div class="nm">Jorge R.</div><div class="ct">Cliente verificado</div></div></div></div>
-      <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Cambié tres veces la resistencia de la lavadora por el sarro. Desde que uso AQUAMID no he tenido una sola falla."</p><div class="who"><div class="av">LP</div><div><div class="nm">Lucía P.</div><div class="ct">Cliente verificado</div></div></div></div>
-      <div class="tcard reveal"><div class="stars">★★★★★</div><p>"La instalación es lo más fácil del mundo y dura muchísimo. Ya lo recomendé con toda mi familia."</p><div class="who"><div class="av">AH</div><div><div class="nm">Antonio H.</div><div class="ct">Cliente verificado</div></div></div></div>
-      <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Se nota la diferencia en el agua y en las llaves. Ya no aparecen esas manchas blancas tan feas."</p><div class="who"><div class="av">SC</div><div><div class="nm">Sofía C.</div><div class="ct">Cliente verificado</div></div></div></div>
-      <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Pedí uno para probar y terminé comprando para mi casa y la de mi mamá. Excelente producto mexicano."</p><div class="who"><div class="av">DM</div><div><div class="nm">Daniel M.</div><div class="ct">Cliente verificado</div></div></div></div>
+    <div class="g-head reveal">
+      <div class="g-badge">
+        <svg class="glogo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="g-score">4.8</span><span class="g-stars">★★★★★</span>
+          </div>
+          <div class="g-count">Opiniones en Google</div>
+        </div>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="rail-track" id="railTrack">
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">MG</div>
+            <div class="rc-who"><div class="nm">Mariana G.</div><div class="ct">Mérida, Yuc.</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"Vivimos en zona de agua muy dura y el tinaco se llenaba de costras. Con AQUAMID el agua sale mucho más limpia y ya no batallo."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">JR</div>
+            <div class="rc-who"><div class="nm">Jorge R.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"Lo puse yo solo en cinco minutos. Medio año después el boiler sigue calentando como nuevo. Vale cada peso."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">LP</div>
+            <div class="rc-who"><div class="nm">Lucía P.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"Cambié tres veces la resistencia de la lavadora por el sarro. Desde que uso AQUAMID no he tenido una sola falla."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">AH</div>
+            <div class="rc-who"><div class="nm">Antonio H.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"La instalación es lo más fácil del mundo y dura muchísimo. Ya lo recomendé con toda mi familia."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">SC</div>
+            <div class="rc-who"><div class="nm">Sofía C.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"Se nota la diferencia en el agua y en las llaves. Ya no aparecen esas manchas blancas tan feas."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">DM</div>
+            <div class="rc-who"><div class="nm">Daniel M.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"Pedí uno para probar y terminé comprando para mi casa y la de mi mamá. Excelente producto mexicano."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">RV</div>
+            <div class="rc-who"><div class="nm">Rocío V.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"El agua ya no huele a cloro y mi cabello dejó de sentirse reseco después de bañarme."</p>
+        </article>
+        <article class="rcard">
+          <div class="rc-top">
+            <div class="rc-av">EF</div>
+            <div class="rc-who"><div class="nm">Enrique F.</div><div class="ct">Cliente verificado</div></div>
+            <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
+          </div>
+          <div class="rc-stars">★★★★★</div>
+          <p>"Tenía que descalcificar la regadera cada mes. Llevo cuatro meses sin tocarla y sigue limpia."</p>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -1943,6 +2071,16 @@ window.addEventListener('load',()=>{
   let amount = 0;             // importe del carrito (respeta el descuento del paquete)
   let addQty = 1;             // (compat) selector viejo de cantidad
 
+  /* Precio por cantidad, siempre desde los mismos tramos que muestran los paquetes.
+     Antes se arrastraba el unitario del último paquete y salían cifras que no existen. */
+  function precioPor(n){
+    if(n<=0) return 0;
+    if(n===1) return 299;
+    if(n<4)  return Math.round(n*274.5);    // tramo del paquete de 2
+    if(n<6)  return Math.round(n*262.25);   // tramo del paquete de 4
+    return   Math.round(n*249.834);         // tramo del paquete de 6
+  }
+
   const $ = id => document.getElementById(id);
   const fab=$('cartFab'), badge=$('cartBadge'), overlay=$('cartOverlay'),
         drawer=$('cartDrawer'), body=$('cartBody'), totalEl=$('cartTotal'),
@@ -1979,7 +2117,7 @@ window.addEventListener('load',()=>{
   // ---- agregar al carrito ----
   $('addCart').addEventListener('click',()=>{
     units  += packUnits;
-    amount += packTotal;
+    amount  = precioPor(units);
     if(window.gsap) gsap.fromTo(fab,{scale:1},{scale:1.18,duration:.18,yoyo:true,repeat:1,ease:'power2.out'});
     showToast(packUnits>1 ? ('Paquete de '+packUnits+' agregado') : 'Pieza agregada');
     render(); openCart();
@@ -1993,7 +2131,8 @@ window.addEventListener('load',()=>{
       body.innerHTML='<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12.5a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>Tu carrito está vacío.<br>Agrega AQUAMID para empezar.</div>';
       payBtn.disabled=true;
     }else{
-      const cu = amount/units;                       // precio unitario real del carrito
+      amount = precioPor(units);                     // siempre desde la tabla de paquetes
+      const cu = amount/units;
       const sinDesc = units*PRICE;
       const ahorro = Math.max(0, sinDesc - amount);
       body.innerHTML=
@@ -2009,12 +2148,9 @@ window.addEventListener('load',()=>{
         '</div>';
       body.querySelectorAll('.ci-qty button').forEach(b=>{
         b.addEventListener('click',()=>{
-          const antes = units;
           units += (b.dataset.act==='inc'?1:-1);
           if(units<0) units=0;
-          // al ajustar a mano se mantiene el precio unitario ya conseguido
-          amount = units>0 ? Math.round(cu*units) : 0;
-          if(antes===0) amount=0;
+          amount = precioPor(units);
           render();
         });
       });
@@ -2034,9 +2170,21 @@ window.addEventListener('load',()=>{
   });
 
   // ---- abrir / cerrar ----
-  let drawerOpen=false;
-  function openCart(){ drawerOpen=true; overlay.classList.add('open'); drawer.classList.add('open'); fab.classList.add('show'); }
-  function closeCart(){ drawerOpen=false; overlay.classList.remove('open'); drawer.classList.remove('open'); render(); }
+  let drawerOpen=false, scrollY=0;
+  // en celular el fondo se movía detrás del carrito: lo congelamos mientras está abierto
+  function trabarFondo(){
+    if(window.innerWidth>820) return;
+    scrollY = window.scrollY;
+    document.body.style.cssText += ';position:fixed;top:'+(-scrollY)+'px;left:0;right:0;width:100%;';
+  }
+  function soltarFondo(){
+    if(document.body.style.position!=='fixed') return;
+    document.body.style.position=''; document.body.style.top='';
+    document.body.style.left=''; document.body.style.right=''; document.body.style.width='';
+    window.scrollTo(0, scrollY);
+  }
+  function openCart(){ drawerOpen=true; trabarFondo(); overlay.classList.add('open'); drawer.classList.add('open'); fab.classList.add('show'); }
+  function closeCart(){ drawerOpen=false; soltarFondo(); overlay.classList.remove('open'); drawer.classList.remove('open'); render(); }
   fab.addEventListener('click',openCart);
   $('cartClose').addEventListener('click',closeCart);
   overlay.addEventListener('click',closeCart);
@@ -2370,6 +2518,56 @@ window.addEventListener('load',()=>{
       window.scrollTo(0, y);
     }
   }).observe(modal, { attributes:true, attributeFilter:['class'] });
+})();
+</script>
+<!-- ===== Cintillo de reseñas: duplicar para que el giro no tenga corte ===== -->
+<script>
+(function(){
+  var t = document.getElementById('railTrack');
+  if(!t) return;
+  var copia = t.innerHTML;
+  t.innerHTML = copia + copia;          // la animación va de 0 a -50%: la 2ª mitad es la costura
+  t.setAttribute('aria-hidden','false');
+})();
+</script>
+
+<!-- ===== Parallax suave en las imágenes al hacer scroll ===== -->
+<script>
+(function(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var sel = '.tcard3 img, .cov-card .ph, .gcard img, .chg-frame img, .hw-img img, .guar-img img';
+  var items = [].slice.call(document.querySelectorAll(sel));
+  if(!items.length) return;
+
+  // Solo las que están a la vista: nada de recalcular la página entera en cada scroll
+  var vivos = [];
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      var i = vivos.indexOf(e.target);
+      if(e.isIntersecting && i < 0) vivos.push(e.target);
+      else if(!e.isIntersecting && i >= 0){ vivos.splice(i,1); e.target.style.removeProperty('--par'); }
+    });
+  }, { rootMargin:'15% 0px' });
+  items.forEach(function(el){ io.observe(el); });
+
+  var pedido = false;
+  function pintar(){
+    pedido = false;
+    var h = window.innerHeight;
+    for(var i=0;i<vivos.length;i++){
+      var el = vivos[i], r = el.getBoundingClientRect();
+      // -1 arriba de la pantalla, +1 abajo
+      var p = ((r.top + r.height/2) - h/2) / (h/2);
+      if(p < -1) p = -1; else if(p > 1) p = 1;
+      el.style.setProperty('--par', (p * 14).toFixed(1) + 'px');
+    }
+  }
+  window.addEventListener('scroll', function(){
+    if(!pedido){ pedido = true; requestAnimationFrame(pintar); }
+  }, { passive:true });
+  window.addEventListener('resize', pintar, { passive:true });
+  pintar();
 })();
 </script>
 </body>
