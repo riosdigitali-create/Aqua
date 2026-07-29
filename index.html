@@ -453,14 +453,33 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 /* ---------- selector de paquetes ---------- */
 /* filas, no columnas: la tarjeta de compra es angosta y el texto se cortaba */
 .packs{display:flex;flex-direction:column;gap:9px;margin:18px 0 4px;text-align:left}
-.pack{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;
+.pack{position:relative;display:grid;grid-template-columns:22px 44px 1fr auto;gap:10px;align-items:center;
   border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:rgba(6,10,20,.5);
-  color:var(--ink);font-family:inherit;cursor:none;transition:.35s var(--easing)}
-.pack img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(60,150,255,.35))}
-.pack:hover{border-color:rgba(120,200,255,.45);background:rgba(18,40,84,.45)}
+  color:var(--ink);font-family:inherit;cursor:none;overflow:hidden;
+  transition:border-color .35s var(--easing),background .35s var(--easing),transform .35s var(--easing),box-shadow .35s var(--easing)}
+/* marca de selección */
+.pack:before{content:"";width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(120,150,210,.45);
+  background:transparent;transition:.3s var(--easing);position:relative}
+.pack:after{content:"";position:absolute;left:17px;top:50%;width:9px;height:5px;
+  border-left:2px solid #04122e;border-bottom:2px solid #04122e;transform:translateY(-70%) rotate(-45deg) scale(.4);
+  opacity:0;transition:.3s var(--easing)}
+.pack[aria-checked="true"]:before{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px rgba(99,230,255,.6)}
+.pack[aria-checked="true"]:after{opacity:1;transform:translateY(-70%) rotate(-45deg) scale(1)}
+.pack img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(60,150,255,.35));
+  transition:transform .45s var(--easing)}
+.pack:hover{border-color:rgba(120,200,255,.45);background:rgba(18,40,84,.45);transform:translateX(3px)}
+.pack:hover img{transform:scale(1.08) rotate(-3deg)}
 .pack[aria-checked="true"]{border-color:var(--cyan);background:linear-gradient(120deg,rgba(24,64,140,.55),rgba(8,18,40,.6));
   box-shadow:0 0 0 1px rgba(99,230,255,.35),0 14px 34px -22px rgba(60,160,255,.85)}
-.p-body{min-width:0}
+.pack[aria-checked="true"] img{transform:scale(1.1)}
+/* barrido de luz al seleccionar */
+.pack[aria-checked="true"] .p-body:before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 35%,rgba(160,230,255,.16) 50%,transparent 65%);
+  animation:packShine .85s var(--easing) 1}
+@keyframes packShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes priceBump{0%{transform:translateY(6px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.buy-price.bump #unitPrice{display:inline-block;animation:priceBump .4s var(--easing)}
+.p-body{min-width:0;position:relative}
 .p-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .p-top b{font-family:'Clash Display';font-weight:600;font-size:15px;white-space:nowrap}
 .p-cov{font-size:10.5px;color:var(--cyan);border:1px solid rgba(120,200,255,.35);border-radius:100px;padding:1px 7px;white-space:nowrap}
@@ -485,8 +504,10 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 .qbtn{width:38px;height:38px;border:none;border-radius:50%;background:transparent;color:var(--ink);font-size:22px;font-family:'Clash Display';cursor:none;display:flex;align-items:center;justify-content:center;transition:.3s var(--easing)}
 .qbtn:hover{background:rgba(90,150,255,.15);color:var(--cyan)}
 .qval{min-width:44px;text-align:center;font-family:'Clash Display';font-size:20px;font-weight:600}
-.addcart{width:100%;justify-content:center;background:linear-gradient(120deg,var(--blue),var(--cyan));color:#04122e;box-shadow:0 12px 40px -14px rgba(60,160,255,.7);border:none;cursor:none}
-.addcart svg{width:20px;height:20px}
+.addcart{width:100%;justify-content:center;position:relative;overflow:hidden;background:linear-gradient(120deg,var(--blue),var(--cyan));color:#04122e;box-shadow:0 12px 40px -14px rgba(60,160,255,.7);border:none;cursor:none}
+.addcart svg{width:20px;height:20px;transition:transform .4s var(--easing)}
+.addcart:hover svg{transform:translateX(3px)}
+.addcart:active{transform:scale(.985)}
 .contact-link{display:inline-block;margin-top:16px;color:var(--muted);font-size:14px;border-bottom:1px solid transparent;transition:.3s}
 .contact-link:hover{color:var(--cyan);border-color:var(--cyan)}
 
@@ -2098,8 +2119,11 @@ window.addEventListener('load',()=>{
     packsWrap.querySelectorAll('.pack').forEach(p=>p.setAttribute('aria-checked', p===btn?'true':'false'));
     packUnits = parseInt(btn.dataset.units,10);
     packTotal = parseInt(btn.dataset.price,10);
-    const up=$('unitPrice');
-    if(up) up.textContent = Math.round(packTotal/packUnits).toLocaleString('es-MX');
+    const up=$('unitPrice'), caja=up&&up.closest('.buy-price');
+    if(up){
+      up.textContent = Math.round(packTotal/packUnits).toLocaleString('es-MX');
+      if(caja){ caja.classList.remove('bump'); void caja.offsetWidth; caja.classList.add('bump'); }
+    }
     // el recordatorio del recambio solo tiene sentido si lleva una sola pieza
     if(nudge) nudge.hidden = (packUnits !== 1);
   }
