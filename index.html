@@ -405,7 +405,38 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 .buy-price{margin:22px 0 6px;font-family:'Clash Display';font-weight:600;font-size:44px;line-height:1;display:flex;align-items:baseline;justify-content:center;gap:4px}
 .buy-price .cur{font-size:26px;color:var(--cyan)}
 .buy-price .mxn{font-size:14px;color:var(--muted-2);font-family:'Satoshi';letter-spacing:.1em;margin-left:4px}
-.qty{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:100px;padding:5px;margin:8px auto 20px;background:rgba(6,10,20,.5)}
+/* ---------- selector de paquetes ---------- */
+.packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 4px;text-align:left}
+.pack{position:relative;display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;
+  border:1px solid var(--line);border-radius:16px;padding:12px 13px;background:rgba(6,10,20,.5);
+  color:var(--ink);font-family:inherit;cursor:none;transition:.35s var(--easing);overflow:hidden}
+.pack img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(60,150,255,.35))}
+.pack:hover{border-color:rgba(120,200,255,.45);background:rgba(18,40,84,.45)}
+.pack[aria-checked="true"]{border-color:var(--cyan);background:linear-gradient(150deg,rgba(24,64,140,.55),rgba(8,18,40,.6));
+  box-shadow:0 0 0 1px rgba(99,230,255,.35),0 16px 40px -22px rgba(60,160,255,.85)}
+.p-body{min-width:0}
+.p-top{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.p-top b{font-family:'Clash Display';font-weight:600;font-size:15.5px}
+.p-cov{font-size:11px;color:var(--cyan);border:1px solid rgba(120,200,255,.35);border-radius:100px;padding:1px 7px;white-space:nowrap}
+.p-price{font-family:'Clash Display';font-weight:600;font-size:21px;margin-top:3px;line-height:1}
+.p-unit{font-size:11.5px;color:var(--muted-2);margin-top:3px}
+.p-unit i{font-style:normal;color:#5fe0a0;font-weight:600}
+.p-flag{position:absolute;top:0;right:0;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--cyan);color:#04122e;padding:3px 8px;border-bottom-left-radius:10px}
+.p-flag.alt{background:#5fe0a0}
+@media(max-width:560px){.packs{grid-template-columns:1fr}}
+
+/* aviso que invita a subir de paquete */
+.pack-nudge{display:flex;align-items:center;gap:10px;text-align:left;margin:14px 0 2px;padding:12px 13px;
+  border:1px dashed rgba(120,200,255,.4);border-radius:14px;background:rgba(20,50,110,.28);font-size:12.5px;color:var(--muted);line-height:1.45}
+.pack-nudge svg{width:19px;height:19px;color:var(--cyan);flex:none}
+.pack-nudge b{color:var(--ink)}
+.pack-nudge button{flex:none;border:1px solid var(--cyan);background:rgba(99,230,255,.12);color:var(--cyan);
+  font-family:inherit;font-size:12px;font-weight:600;padding:7px 12px;border-radius:100px;cursor:none;transition:.3s}
+.pack-nudge button:hover{background:var(--cyan);color:#04122e}
+
+.qty{display:none}
+.qty-old{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:100px;padding:5px;margin:8px auto 20px;background:rgba(6,10,20,.5)}
 .qbtn{width:38px;height:38px;border:none;border-radius:50%;background:transparent;color:var(--ink);font-size:22px;font-family:'Clash Display';cursor:none;display:flex;align-items:center;justify-content:center;transition:.3s var(--easing)}
 .qbtn:hover{background:rgba(90,150,255,.15);color:var(--cyan)}
 .qval{min-width:44px;text-align:center;font-family:'Clash Display';font-size:20px;font-weight:600}
@@ -443,7 +474,8 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 .citem .ci-name{font-weight:600;font-size:15px;font-family:'Clash Display'}
 .citem .ci-tag{font-size:12px;color:var(--muted-2);margin-top:2px}
 .citem .ci-price{color:var(--cyan);font-size:14px;margin-top:6px;font-weight:600}
-.citem .ci-qty{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:100px;padding:3px;margin-top:8px}
+.citem .ci-save{font-size:12px;color:#5fe0a0;font-weight:600;margin-top:3px}
+.ci-qty{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:100px;padding:3px;margin-top:8px}
 .citem .ci-qty button{width:26px;height:26px;border:none;border-radius:50%;background:transparent;color:var(--ink);cursor:none;font-size:16px;font-family:'Clash Display';transition:.3s}
 .citem .ci-qty button:hover{background:rgba(90,150,255,.15);color:var(--cyan)}
 .citem .ci-qty span{min-width:26px;text-align:center;font-weight:600;font-size:14px}
@@ -1139,11 +1171,50 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
           <div class="prod-name">AQUAMID DUAL</div>
           <div class="prod-tag">Anti Sarro · Desinfectante para Tinacos</div>
           <div class="buy-price"><span class="cur">$</span><span id="unitPrice">299</span><span class="mxn">MXN</span></div>
-          <div class="qty">
-            <button class="qbtn" data-act="dec" aria-label="Quitar uno" data-hover>−</button>
-            <span class="qval" id="qtyVal">1</span>
-            <button class="qbtn" data-act="inc" aria-label="Agregar uno" data-hover>+</button>
+
+          <div class="packs" id="packs" role="radiogroup" aria-label="Elige tu paquete">
+            <button class="pack" data-units="1" data-price="299" role="radio" aria-checked="true" data-hover>
+              <img src="pack-1.webp" width="763" height="1100" alt="1 pieza AQUAMID" loading="lazy" decoding="async">
+              <div class="p-body">
+                <div class="p-top"><b>1 pieza</b><span class="p-cov">6 meses</span></div>
+                <div class="p-price">$299</div>
+                <div class="p-unit">$299 c/u</div>
+              </div>
+            </button>
+            <button class="pack best" data-units="2" data-price="549" role="radio" aria-checked="false" data-hover>
+              <span class="p-flag">Más elegido</span>
+              <img src="pack-2.webp" width="1091" height="1069" alt="2 piezas AQUAMID" loading="lazy" decoding="async">
+              <div class="p-body">
+                <div class="p-top"><b>2 piezas</b><span class="p-cov">1 año</span></div>
+                <div class="p-price">$549</div>
+                <div class="p-unit">$275 c/u · <i>ahorras $49</i></div>
+              </div>
+            </button>
+            <button class="pack" data-units="4" data-price="1049" role="radio" aria-checked="false" data-hover>
+              <img src="pack-4.webp" width="1100" height="850" alt="4 piezas AQUAMID" loading="lazy" decoding="async">
+              <div class="p-body">
+                <div class="p-top"><b>4 piezas</b><span class="p-cov">2 años</span></div>
+                <div class="p-price">$1,049</div>
+                <div class="p-unit">$262 c/u · <i>ahorras $147</i></div>
+              </div>
+            </button>
+            <button class="pack" data-units="6" data-price="1499" role="radio" aria-checked="false" data-hover>
+              <span class="p-flag alt">Mejor precio</span>
+              <img src="pack-6.webp" width="1100" height="778" alt="6 piezas AQUAMID" loading="lazy" decoding="async">
+              <div class="p-body">
+                <div class="p-top"><b>6 piezas</b><span class="p-cov">3 años</span></div>
+                <div class="p-price">$1,499</div>
+                <div class="p-unit">$250 c/u · <i>ahorras $295</i></div>
+              </div>
+            </button>
           </div>
+
+          <div class="pack-nudge" id="packNudge" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>
+            <span>Cada pieza dura <b>6 meses</b>. Con el paquete de 2 cubres el año completo y pagas <b>$49 menos</b>.</span>
+            <button type="button" id="nudgeUp" data-hover>Llevar 2</button>
+          </div>
+
           <button class="btn addcart" id="addCart" data-hover>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.5 12.5a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Agregar al carrito
@@ -1868,29 +1939,49 @@ window.addEventListener('load',()=>{
   // ------------------------
 
   const money = n => '$' + n.toLocaleString('es-MX') + ' MXN';
-  let units = 0;              // unidades en el carrito
-  let addQty = 1;            // selector de cantidad en la tarjeta
+  let units  = 0;             // piezas en el carrito
+  let amount = 0;             // importe del carrito (respeta el descuento del paquete)
+  let addQty = 1;             // (compat) selector viejo de cantidad
 
   const $ = id => document.getElementById(id);
   const fab=$('cartFab'), badge=$('cartBadge'), overlay=$('cartOverlay'),
         drawer=$('cartDrawer'), body=$('cartBody'), totalEl=$('cartTotal'),
         payBtn=$('cartPay'), qtyVal=$('qtyVal'), toast=$('toast'), toastMsg=$('toastMsg');
 
-  // ---- selector de cantidad en la tarjeta ----
-  document.querySelectorAll('#buyCard .qbtn').forEach(b=>{
-    b.addEventListener('click',()=>{
-      addQty += (b.dataset.act==='inc'?1:-1);
-      if(addQty<1) addQty=1;
-      qtyVal.textContent=addQty;
+  // ---- selector de paquetes ----
+  // packUnits/packTotal = el paquete elegido. Precio unitario baja al subir de paquete.
+  let packUnits = 1, packTotal = 299;
+  const packsWrap = $('packs'), nudge = $('packNudge');
+
+  function pintarPack(btn){
+    packsWrap.querySelectorAll('.pack').forEach(p=>p.setAttribute('aria-checked', p===btn?'true':'false'));
+    packUnits = parseInt(btn.dataset.units,10);
+    packTotal = parseInt(btn.dataset.price,10);
+    const up=$('unitPrice');
+    if(up) up.textContent = Math.round(packTotal/packUnits).toLocaleString('es-MX');
+    // el recordatorio del recambio solo tiene sentido si lleva una sola pieza
+    if(nudge) nudge.hidden = (packUnits !== 1);
+  }
+
+  if(packsWrap){
+    packsWrap.querySelectorAll('.pack').forEach(btn=>{
+      btn.addEventListener('click',()=>pintarPack(btn));
     });
-  });
+    const dos = packsWrap.querySelector('.pack[data-units="2"]');
+    const btnUp = $('nudgeUp');
+    if(btnUp && dos) btnUp.addEventListener('click',()=>{
+      pintarPack(dos);
+      if(window.gsap) gsap.fromTo(dos,{scale:1},{scale:1.04,duration:.2,yoyo:true,repeat:1,ease:'power2.out'});
+    });
+    pintarPack(packsWrap.querySelector('.pack[data-units="1"]'));
+  }
 
   // ---- agregar al carrito ----
   $('addCart').addEventListener('click',()=>{
-    units += addQty;
+    units  += packUnits;
+    amount += packTotal;
     if(window.gsap) gsap.fromTo(fab,{scale:1},{scale:1.18,duration:.18,yoyo:true,repeat:1,ease:'power2.out'});
-    showToast(addQty+(addQty>1?' piezas agregadas':' pieza agregada'));
-    addQty=1; qtyVal.textContent=1;
+    showToast(packUnits>1 ? ('Paquete de '+packUnits+' agregado') : 'Pieza agregada');
     render(); openCart();
   });
 
@@ -1902,22 +1993,34 @@ window.addEventListener('load',()=>{
       body.innerHTML='<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12.5a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>Tu carrito está vacío.<br>Agrega AQUAMID para empezar.</div>';
       payBtn.disabled=true;
     }else{
+      const cu = amount/units;                       // precio unitario real del carrito
+      const sinDesc = units*PRICE;
+      const ahorro = Math.max(0, sinDesc - amount);
       body.innerHTML=
         '<div class="citem">'+
           '<img src="'+IMG+'" alt="'+NAME+'" onerror="this.style.display=\'none\'"/>'+
           '<div class="ci-info">'+
             '<div class="ci-name">'+NAME+'</div>'+
             '<div class="ci-tag">'+TAG+'</div>'+
-            '<div class="ci-price">'+money(PRICE)+' c/u</div>'+
+            '<div class="ci-price">'+money(Math.round(cu))+' c/u</div>'+
+            (ahorro>0 ? '<div class="ci-save">Ahorras '+money(ahorro)+'</div>' : '')+
             '<div class="ci-qty"><button data-act="dec" data-hover>−</button><span>'+units+'</span><button data-act="inc" data-hover>+</button></div>'+
           '</div>'+
         '</div>';
       body.querySelectorAll('.ci-qty button').forEach(b=>{
-        b.addEventListener('click',()=>{ units+=(b.dataset.act==='inc'?1:-1); if(units<0)units=0; render(); });
+        b.addEventListener('click',()=>{
+          const antes = units;
+          units += (b.dataset.act==='inc'?1:-1);
+          if(units<0) units=0;
+          // al ajustar a mano se mantiene el precio unitario ya conseguido
+          amount = units>0 ? Math.round(cu*units) : 0;
+          if(antes===0) amount=0;
+          render();
+        });
       });
       payBtn.disabled=false;
     }
-    totalEl.textContent=money(units*PRICE);
+    totalEl.textContent=money(amount);
   }
 
   // ---- checkout -> abre demo Stripe/Skydropx ----
@@ -1925,7 +2028,8 @@ window.addEventListener('load',()=>{
     if(units<=0) return;
     closeCart();
     if(typeof window.__openCheckout==='function'){
-      window.__openCheckout({units, price:PRICE, name:NAME, tag:TAG, wa:WHATSAPP, img:IMG});
+      // price = unitario CON descuento, para que envío y Mercado Pago cobren lo correcto
+      window.__openCheckout({units, price:Math.round(amount/units), name:NAME, tag:TAG, wa:WHATSAPP, img:IMG});
     }
   });
 
@@ -1948,7 +2052,7 @@ window.addEventListener('load',()=>{
   // sincroniza precio mostrado con el configurado
   const up=$('unitPrice'); if(up) up.textContent=PRICE.toLocaleString('es-MX');
   // permite al checkout vaciar el carrito tras una compra
-  window.__cartReset=()=>{ units=0; render(); };
+  window.__cartReset=()=>{ units=0; amount=0; render(); };
   render();
 })();
 </script>
