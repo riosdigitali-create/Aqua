@@ -252,10 +252,13 @@ section{position:relative;padding:clamp(90px,13vh,170px) clamp(20px,5vw,80px)}
 .chg-wrap{max-width:1180px;margin:0 auto}
 .chg-frame{position:relative;border-radius:26px;overflow:hidden;border:1px solid rgba(120,200,255,.28);
   box-shadow:0 50px 130px -50px rgba(50,140,255,.75), 0 0 0 1px rgba(255,255,255,.03) inset;
-  clip-path:inset(0 0 100% 0);transition:clip-path 1.5s var(--easing)}
-.chg-frame.in{clip-path:inset(0 0 0 0)}
-.chg-frame img{width:100%;display:block;transform:scale(1.08);transition:transform 1.8s var(--easing)}
-.chg-frame.in img{transform:scale(1)}
+  transition:clip-path 1.5s var(--easing)}
+/* el estado oculto solo se aplica si el JS corre: sin JS la imagen se ve normal */
+.chg-frame.armed{clip-path:inset(0 0 100% 0)}
+.chg-frame.armed.in{clip-path:inset(0 0 0 0)}
+.chg-frame img{width:100%;display:block;transition:transform 1.8s var(--easing)}
+.chg-frame.armed img{transform:scale(1.08)}
+.chg-frame.armed.in img{transform:scale(1)}
 .chg-frame:after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,transparent 70%,rgba(5,8,16,.55) 100%)}
 .chg-glow{position:absolute;left:50%;top:40%;width:70%;height:60%;transform:translate(-50%,-50%);z-index:-1;
@@ -2162,12 +2165,20 @@ window.addEventListener('load',()=>{
 (function(){
   var f = document.getElementById('chgFrame');
   if(!f) return;
-  if(!('IntersectionObserver' in window)){ f.classList.add('in'); return; }
-  new IntersectionObserver(function(es,o){
-    es.forEach(function(e){
-      if(e.isIntersecting){ f.classList.add('in'); o.disconnect(); }
-    });
-  }, { threshold:0.2 }).observe(f);
+  function show(){ f.classList.add('in'); }
+
+  // Solo ahora escondemos: si este script no corriera, la imagen se vería normal.
+  f.classList.add('armed');
+
+  // Red de seguridad: pase lo que pase, la imagen SIEMPRE termina visible.
+  setTimeout(show, 2500);
+  window.addEventListener('load', function(){ setTimeout(show, 400); });
+
+  if(!('IntersectionObserver' in window)){ show(); return; }
+  var io = new IntersectionObserver(function(es,o){
+    es.forEach(function(e){ if(e.isIntersecting){ show(); o.disconnect(); } });
+  }, { threshold:0, rootMargin:'0px 0px -10% 0px' });
+  io.observe(f);
 })();
 </script>
 </body>
