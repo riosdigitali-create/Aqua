@@ -406,25 +406,25 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 .buy-price .cur{font-size:26px;color:var(--cyan)}
 .buy-price .mxn{font-size:14px;color:var(--muted-2);font-family:'Satoshi';letter-spacing:.1em;margin-left:4px}
 /* ---------- selector de paquetes ---------- */
-.packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 4px;text-align:left}
-.pack{position:relative;display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;
-  border:1px solid var(--line);border-radius:16px;padding:12px 13px;background:rgba(6,10,20,.5);
-  color:var(--ink);font-family:inherit;cursor:none;transition:.35s var(--easing);overflow:hidden}
-.pack img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(60,150,255,.35))}
+/* filas, no columnas: la tarjeta de compra es angosta y el texto se cortaba */
+.packs{display:flex;flex-direction:column;gap:9px;margin:18px 0 4px;text-align:left}
+.pack{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;
+  border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:rgba(6,10,20,.5);
+  color:var(--ink);font-family:inherit;cursor:none;transition:.35s var(--easing)}
+.pack img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(60,150,255,.35))}
 .pack:hover{border-color:rgba(120,200,255,.45);background:rgba(18,40,84,.45)}
-.pack[aria-checked="true"]{border-color:var(--cyan);background:linear-gradient(150deg,rgba(24,64,140,.55),rgba(8,18,40,.6));
-  box-shadow:0 0 0 1px rgba(99,230,255,.35),0 16px 40px -22px rgba(60,160,255,.85)}
+.pack[aria-checked="true"]{border-color:var(--cyan);background:linear-gradient(120deg,rgba(24,64,140,.55),rgba(8,18,40,.6));
+  box-shadow:0 0 0 1px rgba(99,230,255,.35),0 14px 34px -22px rgba(60,160,255,.85)}
 .p-body{min-width:0}
-.p-top{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
-.p-top b{font-family:'Clash Display';font-weight:600;font-size:15.5px}
-.p-cov{font-size:11px;color:var(--cyan);border:1px solid rgba(120,200,255,.35);border-radius:100px;padding:1px 7px;white-space:nowrap}
-.p-price{font-family:'Clash Display';font-weight:600;font-size:21px;margin-top:3px;line-height:1}
-.p-unit{font-size:11.5px;color:var(--muted-2);margin-top:3px}
+.p-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.p-top b{font-family:'Clash Display';font-weight:600;font-size:15px;white-space:nowrap}
+.p-cov{font-size:10.5px;color:var(--cyan);border:1px solid rgba(120,200,255,.35);border-radius:100px;padding:1px 7px;white-space:nowrap}
+.p-price{font-family:'Clash Display';font-weight:600;font-size:19px;line-height:1;white-space:nowrap;text-align:right}
+.p-unit{font-size:11px;color:var(--muted-2);margin-top:3px;line-height:1.3}
 .p-unit i{font-style:normal;color:#5fe0a0;font-weight:600}
-.p-flag{position:absolute;top:0;right:0;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  background:var(--cyan);color:#04122e;padding:3px 8px;border-bottom-left-radius:10px}
+.p-flag{position:absolute;top:-1px;right:-1px;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  background:var(--cyan);color:#04122e;padding:2px 7px;border-radius:0 13px 0 9px}
 .p-flag.alt{background:#5fe0a0}
-@media(max-width:560px){.packs{grid-template-columns:1fr}}
 
 /* aviso que invita a subir de paquete */
 .pack-nudge{display:flex;align-items:center;gap:10px;text-align:left;margin:14px 0 2px;padding:12px 13px;
@@ -1177,35 +1177,35 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
               <img src="pack-1.webp" width="763" height="1100" alt="1 pieza AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>1 pieza</b><span class="p-cov">6 meses</span></div>
-                <div class="p-price">$299</div>
                 <div class="p-unit">$299 c/u</div>
               </div>
+              <div class="p-price">$299</div>
             </button>
             <button class="pack best" data-units="2" data-price="549" role="radio" aria-checked="false" data-hover>
               <span class="p-flag">Más elegido</span>
               <img src="pack-2.webp" width="1091" height="1069" alt="2 piezas AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>2 piezas</b><span class="p-cov">1 año</span></div>
-                <div class="p-price">$549</div>
                 <div class="p-unit">$275 c/u · <i>ahorras $49</i></div>
               </div>
+              <div class="p-price">$549</div>
             </button>
             <button class="pack" data-units="4" data-price="1049" role="radio" aria-checked="false" data-hover>
               <img src="pack-4.webp" width="1100" height="850" alt="4 piezas AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>4 piezas</b><span class="p-cov">2 años</span></div>
-                <div class="p-price">$1,049</div>
                 <div class="p-unit">$262 c/u · <i>ahorras $147</i></div>
               </div>
+              <div class="p-price">$1,049</div>
             </button>
             <button class="pack" data-units="6" data-price="1499" role="radio" aria-checked="false" data-hover>
               <span class="p-flag alt">Mejor precio</span>
               <img src="pack-6.webp" width="1100" height="778" alt="6 piezas AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>6 piezas</b><span class="p-cov">3 años</span></div>
-                <div class="p-price">$1,499</div>
                 <div class="p-unit">$250 c/u · <i>ahorras $295</i></div>
               </div>
+              <div class="p-price">$1,499</div>
             </button>
           </div>
 
