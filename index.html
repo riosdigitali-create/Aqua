@@ -256,7 +256,7 @@ section{position:relative;padding:clamp(90px,13vh,170px) clamp(20px,5vw,80px)}
 /* el estado oculto solo se aplica si el JS corre: sin JS la imagen se ve normal */
 .chg-frame.armed{clip-path:inset(0 0 100% 0)}
 .chg-frame.armed.in{clip-path:inset(0 0 0 0)}
-.chg-frame img{width:100%;display:block;transition:transform 1.8s var(--easing)}
+.chg-frame img{width:100%;height:auto;display:block;transition:transform 1.8s var(--easing)}
 .chg-frame.armed img{transform:scale(1.08)}
 .chg-frame.armed.in img{transform:scale(1)}
 .chg-frame:after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -278,7 +278,7 @@ section{position:relative;padding:clamp(90px,13vh,170px) clamp(20px,5vw,80px)}
 .hw{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,5vw,70px);align-items:center}
 .hw-img{position:relative;border-radius:24px;overflow:hidden;border:1px solid rgba(120,200,255,.25);cursor:none;
   box-shadow:0 40px 100px -45px rgba(50,140,255,.7)}
-.hw-img img{width:100%;display:block;transition:transform .9s var(--easing)}
+.hw-img img{width:100%;height:auto;display:block;transition:transform .9s var(--easing)}
 .hw-img:hover img{transform:scale(1.05)}
 .hw-steps{counter-reset:s;display:flex;flex-direction:column;gap:6px}
 .hw-step{display:grid;grid-template-columns:auto 1fr;gap:20px;padding:22px 0;border-bottom:1px solid var(--line);position:relative}
@@ -686,7 +686,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
 .gal{columns:2;column-gap:20px;max-width:1000px;margin:0 auto}
 .gcard{break-inside:avoid;margin-bottom:20px;position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);cursor:none;
   background:var(--panel,#0a1120);transition:transform .5s var(--easing),border-color .4s,box-shadow .5s}
-.gcard img{width:100%;display:block;transition:transform .7s var(--easing)}
+.gcard img{width:100%;height:auto;display:block;transition:transform .7s var(--easing)}
 .gcard figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 20px 16px;font-family:'Clash Display';font-weight:600;font-size:17px;
   background:linear-gradient(180deg,transparent,rgba(4,7,14,.85));opacity:0;transform:translateY(10px);transition:.45s var(--easing)}
 .gcard:hover{transform:translateY(-5px);border-color:rgba(120,200,255,.45);box-shadow:0 30px 60px -28px rgba(60,150,255,.5)}
@@ -948,7 +948,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     <div class="chg-wrap">
       <div class="chg-glow"></div>
       <figure class="chg-frame" id="chgFrame" data-hover data-src="galeria/antes-despues.webp">
-        <img src="galeria/antes-despues.webp" loading="lazy" decoding="async" alt="Antes y después: regadera, boiler, lavadora y jarra libres de sarro">
+        <img width="1400" height="1400" src="galeria/antes-despues.webp" loading="lazy" decoding="async" alt="Antes y después: regadera, boiler, lavadora y jarra libres de sarro">
       </figure>
       <div class="chg-stats">
         <div class="chg-item reveal"><div class="k">97%</div><div class="t">Menos sarro visible</div><div class="d">En regaderas, baños y lavabos a los 30 días de uso.</div></div>
@@ -967,7 +967,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     </div>
     <div class="hw">
       <figure class="hw-img reveal" data-hover data-src="galeria/como-funciona.webp">
-        <img src="galeria/como-funciona.webp" loading="lazy" decoding="async" alt="AQUAMID trabajando dentro del tinaco">
+        <img width="800" height="1000" src="galeria/como-funciona.webp" loading="lazy" decoding="async" alt="AQUAMID trabajando dentro del tinaco">
       </figure>
       <div class="hw-steps">
         <div class="hw-step reveal">
@@ -1030,17 +1030,17 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     </div>
     <div class="gal">
       <figure class="gcard reveal" data-hover data-src="galeria/dolor.webp">
-        <img src="galeria/dolor.webp" loading="lazy" decoding="async" alt="El problema del agua con sarro y cloro">
+        <img width="970" height="1000" src="galeria/dolor.webp" loading="lazy" decoding="async" alt="El problema del agua con sarro y cloro">
         <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3M11 8v6M8 11h6" stroke-linecap="round"/></svg></span>
         <figcaption>Adiós al cloro y al sarro</figcaption>
       </figure>
       <figure class="gcard reveal" data-hover data-src="galeria/beneficios.webp">
-        <img src="galeria/beneficios.webp" loading="lazy" decoding="async" alt="Beneficios de AQUAMID en tinaco, ducha, electrodomésticos y lavadora">
+        <img width="1199" height="1312" src="galeria/beneficios.webp" loading="lazy" decoding="async" alt="Beneficios de AQUAMID en tinaco, ducha, electrodomésticos y lavadora">
         <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3M11 8v6M8 11h6" stroke-linecap="round"/></svg></span>
         <figcaption>Beneficios en cada rincón de tu casa</figcaption>
       </figure>
       <figure class="gcard reveal" data-hover data-src="galeria/comparacion.webp">
-        <img src="galeria/comparacion.webp" loading="lazy" decoding="async" alt="Comparación AQUAMID vs otros productos para tinaco">
+        <img width="1400" height="1400" src="galeria/comparacion.webp" loading="lazy" decoding="async" alt="Comparación AQUAMID vs otros productos para tinaco">
         <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3M11 8v6M8 11h6" stroke-linecap="round"/></svg></span>
         <figcaption>AQUAMID vs. lo de siempre</figcaption>
       </figure>
@@ -1101,7 +1101,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     <!-- garantía: justo después del botón de compra, donde aparece la duda -->
     <div class="guar reveal">
       <figure class="guar-img" data-hover data-src="galeria/garantia.webp">
-        <img src="galeria/garantia.webp" loading="lazy" decoding="async" alt="Compra 100% garantizada: 60 días de devolución">
+        <img width="1175" height="1400" src="galeria/garantia.webp" loading="lazy" decoding="async" alt="Compra 100% garantizada: 60 días de devolución">
       </figure>
       <div class="guar-copy">
         <span class="eyebrow" style="color:var(--cyan)">Compra sin riesgo</span>
