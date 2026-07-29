@@ -453,44 +453,91 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 .buy-price .cur{font-size:26px;color:var(--cyan)}
 .buy-price .mxn{font-size:14px;color:var(--muted-2);font-family:'Satoshi';letter-spacing:.1em;margin-left:4px}
 /* ---------- selector de paquetes ---------- */
-/* filas, no columnas: la tarjeta de compra es angosta y el texto se cortaba */
-.packs{display:flex;flex-direction:column;gap:9px;margin:18px 0 4px;text-align:left}
-.pack{position:relative;display:grid;grid-template-columns:22px 44px 1fr auto;gap:10px;align-items:center;
-  border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:rgba(6,10,20,.5);
-  color:var(--ink);font-family:inherit;cursor:none;overflow:hidden;
+/* ---------- franja de compra repetible ---------- */
+.cta-strip{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
+  gap:22px;flex-wrap:wrap;border:1px solid rgba(120,200,255,.28);border-radius:22px;padding:24px 28px;
+  background:linear-gradient(120deg,rgba(24,64,140,.4),rgba(8,16,34,.55));backdrop-filter:blur(10px)}
+.cta-strip .cs-txt{min-width:0}
+.cta-strip h3{font-family:'Clash Display';font-weight:600;font-size:clamp(19px,2.4vw,26px);letter-spacing:-.01em}
+.cta-strip p{color:var(--muted);font-size:14.5px;margin-top:6px;max-width:52ch}
+.cta-strip .cs-act{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cta-strip .price{font-family:'Clash Display';font-weight:600;font-size:26px;white-space:nowrap}
+.cta-strip .price small{font-size:12px;color:var(--muted-2);font-family:'Satoshi';letter-spacing:.08em;margin-left:4px}
+.btn-buy{display:inline-flex;align-items:center;gap:10px;justify-content:center;white-space:nowrap;
+  background:linear-gradient(120deg,var(--blue),var(--cyan));color:#04122e;font-weight:600;font-size:15px;
+  padding:15px 26px;border-radius:100px;border:none;cursor:none;position:relative;overflow:hidden;
+  box-shadow:0 12px 34px -14px rgba(60,160,255,.8);transition:transform .3s var(--easing)}
+.btn-buy svg{width:18px;height:18px;transition:transform .35s var(--easing)}
+.btn-buy:hover{transform:translateY(-2px)}
+.btn-buy:hover svg{transform:translateX(3px)}
+.btn-buy:active{transform:scale(.98)}
+.btn-buy:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.4) 50%,transparent 60%);
+  transform:translateX(-100%);transition:transform .7s var(--easing)}
+.btn-buy:hover:after{transform:translateX(100%)}
+@media(max-width:700px){
+  .cta-strip{flex-direction:column;align-items:stretch;text-align:center;padding:22px 20px;gap:16px}
+  .cta-strip .cs-act{justify-content:center}
+  .cta-strip .btn-buy{width:100%}
+}
+
+/* ---------- carrusel de paquetes: se desliza con el dedo ---------- */
+.packs-wrap{position:relative;margin:18px -10px 4px}
+.packs{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:4px 10px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;text-align:left}
+.packs::-webkit-scrollbar{display:none}
+.pack{position:relative;flex:0 0 78%;scroll-snap-align:center;display:flex;flex-direction:column;
+  border:1px solid var(--line);border-radius:18px;padding:18px 16px 16px;background:rgba(6,10,20,.55);
+  color:var(--ink);font-family:inherit;cursor:none;overflow:hidden;text-align:center;
   transition:border-color .35s var(--easing),background .35s var(--easing),transform .35s var(--easing),box-shadow .35s var(--easing)}
-/* marca de selección */
-.pack:before{content:"";width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(120,150,210,.45);
-  background:transparent;transition:.3s var(--easing);position:relative}
-.pack:after{content:"";position:absolute;left:17px;top:50%;width:9px;height:5px;
-  border-left:2px solid #04122e;border-bottom:2px solid #04122e;transform:translateY(-70%) rotate(-45deg) scale(.4);
-  opacity:0;transition:.3s var(--easing)}
+/* palomita de seleccionado */
+.pack:before{content:"";position:absolute;top:12px;left:12px;width:22px;height:22px;border-radius:50%;
+  border:1.5px solid rgba(120,150,210,.45);background:transparent;transition:.3s var(--easing);z-index:2}
+.pack:after{content:"";position:absolute;top:20px;left:18px;width:10px;height:5px;
+  border-left:2px solid #04122e;border-bottom:2px solid #04122e;transform:rotate(-45deg) scale(.4);
+  opacity:0;transition:.3s var(--easing);z-index:3}
 .pack[aria-checked="true"]:before{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px rgba(99,230,255,.6)}
-.pack[aria-checked="true"]:after{opacity:1;transform:translateY(-70%) rotate(-45deg) scale(1)}
-.pack img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(60,150,255,.35));
-  transition:transform .45s var(--easing)}
-.pack:hover{border-color:rgba(120,200,255,.45);background:rgba(18,40,84,.45);transform:translateX(3px)}
-.pack:hover img{transform:scale(1.08) rotate(-3deg)}
-.pack[aria-checked="true"]{border-color:var(--cyan);background:linear-gradient(120deg,rgba(24,64,140,.55),rgba(8,18,40,.6));
-  box-shadow:0 0 0 1px rgba(99,230,255,.35),0 14px 34px -22px rgba(60,160,255,.85)}
-.pack[aria-checked="true"] img{transform:scale(1.1)}
-/* barrido de luz al seleccionar */
+.pack[aria-checked="true"]:after{opacity:1;transform:rotate(-45deg) scale(1)}
+.pack img{width:100%;height:104px;object-fit:contain;margin-bottom:12px;
+  filter:drop-shadow(0 8px 20px rgba(60,150,255,.4));transition:transform .45s var(--easing)}
+.pack:hover{border-color:rgba(120,200,255,.45);background:rgba(18,40,84,.45)}
+.pack:hover img{transform:scale(1.06)}
+.pack[aria-checked="true"]{border-color:var(--cyan);background:linear-gradient(160deg,rgba(24,64,140,.55),rgba(8,18,40,.65));
+  box-shadow:0 0 0 1px rgba(99,230,255,.35),0 18px 44px -24px rgba(60,160,255,.9)}
+.pack[aria-checked="true"] img{transform:scale(1.08)}
 .pack[aria-checked="true"] .p-body:before{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(105deg,transparent 35%,rgba(160,230,255,.16) 50%,transparent 65%);
   animation:packShine .85s var(--easing) 1}
 @keyframes packShine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes priceBump{0%{transform:translateY(6px);opacity:0}100%{transform:translateY(0);opacity:1}}
 .buy-price.bump #unitPrice{display:inline-block;animation:priceBump .4s var(--easing)}
+
 .p-body{min-width:0;position:relative}
-.p-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.p-top b{font-family:'Clash Display';font-weight:600;font-size:15px;white-space:nowrap}
-.p-cov{font-size:10.5px;color:var(--cyan);border:1px solid rgba(120,200,255,.35);border-radius:100px;padding:1px 7px;white-space:nowrap}
-.p-price{font-family:'Clash Display';font-weight:600;font-size:19px;line-height:1;white-space:nowrap;text-align:right}
-.p-unit{font-size:11px;color:var(--muted-2);margin-top:3px;line-height:1.3}
-.p-unit i{font-style:normal;color:#5fe0a0;font-weight:600}
-.p-flag{position:absolute;top:-1px;right:-1px;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  background:var(--cyan);color:#04122e;padding:2px 7px;border-radius:0 13px 0 9px}
+.p-top{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.p-top b{font-family:'Clash Display';font-weight:600;font-size:18px;white-space:nowrap}
+.p-cov{font-size:11px;color:var(--cyan);border:1px solid rgba(120,200,255,.35);border-radius:100px;padding:2px 9px;white-space:nowrap}
+.p-price{font-family:'Clash Display';font-weight:600;font-size:30px;line-height:1;margin-top:10px;white-space:nowrap}
+.p-unit{font-size:12px;color:var(--muted-2);margin-top:6px;line-height:1.4}
+.p-unit i{font-style:normal;color:#5fe0a0;font-weight:600;display:block;margin-top:2px}
+.p-flag{position:absolute;top:0;right:0;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  background:var(--cyan);color:#04122e;padding:3px 9px;border-radius:0 17px 0 11px;z-index:2}
 .p-flag.alt{background:#5fe0a0}
+
+/* puntos y flechas */
+.packs-dots{display:flex;justify-content:center;gap:7px;margin-top:2px}
+.packs-dots b{width:7px;height:7px;border-radius:50%;background:rgba(120,150,210,.35);transition:.3s var(--easing);cursor:none}
+.packs-dots b.on{background:var(--cyan);width:20px;border-radius:100px;box-shadow:0 0 10px rgba(99,230,255,.6)}
+.packs-nav{position:absolute;top:44%;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+  background:rgba(8,14,28,.8);backdrop-filter:blur(8px);color:var(--cyan);display:none;align-items:center;
+  justify-content:center;cursor:none;z-index:4;transition:.3s var(--easing);font-size:15px}
+.packs-nav:hover{border-color:var(--cyan);background:rgba(20,50,110,.9)}
+.packs-nav.prev{left:-4px}.packs-nav.next{right:-4px}
+@media(hover:hover){.packs-nav{display:flex}}
+/* pista de que se puede deslizar */
+.packs-hint{font-size:11.5px;color:var(--muted-2);text-align:center;margin-top:8px;display:flex;
+  align-items:center;justify-content:center;gap:7px}
+.packs-hint svg{width:14px;height:14px;color:var(--cyan);animation:hintSlide 1.8s ease-in-out infinite}
+@keyframes hintSlide{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 
 /* aviso que invita a subir de paquete */
 .pack-nudge{display:flex;align-items:center;gap:10px;text-align:left;margin:14px 0 2px;padding:12px 13px;
@@ -1106,6 +1153,19 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     </div>
   </section>
 
+
+  <section style="padding-top:0">
+    <div class="cta-strip reveal">
+      <div class="cs-txt">
+        <h3>Una pieza protege toda tu casa</h3>
+        <p>Regadera, boiler, lavadora y llaves. Seis meses de agua protegida por menos de lo que cuesta una limpieza de tinaco.</p>
+      </div>
+      <div class="cs-act">
+        <div class="price">$299<small>MXN</small></div>
+        <a href="#comprar" class="btn-buy" data-hover><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.5 12.5a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>Comprar ahora</a>
+      </div>
+    </div>
+  </section>
   <!-- ===== BENEFITS ===== -->
   <section id="beneficios">
     <div class="sec-head">
@@ -1184,6 +1244,19 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     </div>
   </section>
 
+
+  <section style="padding-top:0">
+    <div class="cta-strip reveal">
+      <div class="cs-txt">
+        <h3>Se pone en dos minutos</h3>
+        <p>Sin herramientas, sin técnico y sin obra. Abres el tinaco, lo dejas caer y te olvidas medio año.</p>
+      </div>
+      <div class="cs-act">
+        <div class="price">$299<small>MXN</small></div>
+        <a href="#comprar" class="btn-buy" data-hover><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.5 12.5a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>Comprar ahora</a>
+      </div>
+    </div>
+  </section>
   <!-- ===== COMPARISON ===== -->
   <section>
     <div class="sec-head">
@@ -1280,7 +1353,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
         </article>
         <article class="rcard">
           <div class="rc-top">
-            <img class="rc-av" src="https://images.unsplash.com/photo-1625241152315-4a698f74ceb7?w=120&h=120&q=70&auto=format&fit=crop&crop=faces" width="120" height="120" loading="lazy" decoding="async" alt="Lucía P.">
+            <img class="rc-av" src="https://images.unsplash.com/photo-1630939687530-241d630735df?w=120&h=120&q=70&auto=format&fit=crop&crop=faces" width="120" height="120" loading="lazy" decoding="async" alt="Lucía P.">
             <div class="rc-who"><div class="nm">Lucía P.</div><div class="ct">Cliente verificado</div></div>
             <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
           </div>
@@ -1289,7 +1362,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
         </article>
         <article class="rcard">
           <div class="rc-top">
-            <img class="rc-av" src="https://images.unsplash.com/photo-1630939687530-241d630735df?w=120&h=120&q=70&auto=format&fit=crop&crop=faces" width="120" height="120" loading="lazy" decoding="async" alt="Antonio H.">
+            <img class="rc-av" src="https://images.unsplash.com/photo-1625241152315-4a698f74ceb7?w=120&h=120&q=70&auto=format&fit=crop&crop=faces" width="120" height="120" loading="lazy" decoding="async" alt="Antonio H.">
             <div class="rc-who"><div class="nm">Antonio H.</div><div class="ct">Cliente verificado</div></div>
             <svg class="rc-g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.5 5 .5.1c4.2-3.8 6.6-9.5 6.6-15.7"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.4c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3 0-6.7 5.2-.1.3C8 40.3 15.4 46 24 46"/><path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l0-.3-6.8-5.3-.2.1A22 22 0 0 0 2 24c0 3.5.9 6.9 2.5 9.9z"/><path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.4 29.9 1 24 1 15.4 1 8 6.7 4.5 14.1l7 5.5c1.8-5.3 6.7-9.1 12.5-9.1"/></svg>
           </div>
@@ -1336,6 +1409,19 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
     </div>
   </section>
 
+
+  <section style="padding-top:0">
+    <div class="cta-strip reveal">
+      <div class="cs-txt">
+        <h3>Pruébalo 60 días sin riesgo</h3>
+        <p>Si no notas la diferencia en tu agua, te devolvemos tu dinero. Sin trámites ni letras chiquitas.</p>
+      </div>
+      <div class="cs-act">
+        <div class="price">$299<small>MXN</small></div>
+        <a href="#comprar" class="btn-buy" data-hover><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.5 12.5a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>Comprar ahora</a>
+      </div>
+    </div>
+  </section>
   <!-- ===== OFFER ===== -->
   <section id="comprar">
     <div class="offer-box reveal">
@@ -1357,41 +1443,47 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
           <div class="prod-tag">Anti Sarro · Desinfectante para Tinacos</div>
           <div class="buy-price"><span class="cur">$</span><span id="unitPrice">299</span><span class="mxn">MXN</span></div>
 
-          <div class="packs" id="packs" role="radiogroup" aria-label="Elige tu paquete">
+          <div class="packs-wrap">
+            <button class="packs-nav prev" id="packPrev" type="button" aria-label="Anterior" data-hover>‹</button>
+            <button class="packs-nav next" id="packNext" type="button" aria-label="Siguiente" data-hover>›</button>
+            <div class="packs" id="packs" role="radiogroup" aria-label="Elige tu paquete">
             <button class="pack" data-units="1" data-price="299" role="radio" aria-checked="true" data-hover>
               <img src="pack-1.webp" width="763" height="1100" alt="1 pieza AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>1 pieza</b><span class="p-cov">6 meses</span></div>
+                <div class="p-price">$299</div>
                 <div class="p-unit">$299 c/u</div>
               </div>
-              <div class="p-price">$299</div>
             </button>
             <button class="pack best" data-units="2" data-price="549" role="radio" aria-checked="false" data-hover>
               <span class="p-flag">Más elegido</span>
               <img src="pack-2.webp" width="1091" height="1069" alt="2 piezas AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>2 piezas</b><span class="p-cov">1 año</span></div>
-                <div class="p-unit">$275 c/u · <i>ahorras $49</i></div>
+                <div class="p-price">$549</div>
+                <div class="p-unit">$275 c/u<i>ahorras $49</i></div>
               </div>
-              <div class="p-price">$549</div>
             </button>
             <button class="pack" data-units="4" data-price="1049" role="radio" aria-checked="false" data-hover>
               <img src="pack-4.webp" width="1100" height="850" alt="4 piezas AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>4 piezas</b><span class="p-cov">2 años</span></div>
-                <div class="p-unit">$262 c/u · <i>ahorras $147</i></div>
+                <div class="p-price">$1,049</div>
+                <div class="p-unit">$262 c/u<i>ahorras $147</i></div>
               </div>
-              <div class="p-price">$1,049</div>
             </button>
             <button class="pack" data-units="6" data-price="1499" role="radio" aria-checked="false" data-hover>
               <span class="p-flag alt">Mejor precio</span>
               <img src="pack-6.webp" width="1100" height="778" alt="6 piezas AQUAMID" loading="lazy" decoding="async">
               <div class="p-body">
                 <div class="p-top"><b>6 piezas</b><span class="p-cov">3 años</span></div>
-                <div class="p-unit">$250 c/u · <i>ahorras $295</i></div>
+                <div class="p-price">$1,499</div>
+                <div class="p-unit">$250 c/u<i>ahorras $295</i></div>
               </div>
-              <div class="p-price">$1,499</div>
             </button>
+            </div>
+            <div class="packs-dots" id="packDots"></div>
+            <div class="packs-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6l-4 6 4 6M16 6l4 6-4 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Desliza para ver los paquetes</div>
           </div>
 
           <div class="pack-nudge" id="packNudge" hidden>
@@ -2165,16 +2257,59 @@ window.addEventListener('load',()=>{
   }
 
   if(packsWrap){
-    packsWrap.querySelectorAll('.pack').forEach(btn=>{
-      btn.addEventListener('click',()=>pintarPack(btn));
-    });
+    const tarjetas = [...packsWrap.querySelectorAll('.pack')];
+    tarjetas.forEach(btn=>btn.addEventListener('click',()=>{
+      pintarPack(btn);
+      btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    }));
+
+    // ---- puntos, flechas y swipe ----
+    const dots = $('packDots');
+    if(dots){
+      tarjetas.forEach((_,i)=>{
+        const d=document.createElement('b');
+        d.addEventListener('click',()=>irA(i));
+        dots.appendChild(d);
+      });
+    }
+    function irA(i){
+      const t = tarjetas[i]; if(!t) return;
+      packsWrap.scrollTo({ left: t.offsetLeft - (packsWrap.clientWidth - t.clientWidth)/2, behavior:'smooth' });
+      pintarPack(t);
+    }
+    function actual(){
+      const c = packsWrap.scrollLeft + packsWrap.clientWidth/2;
+      let mejor=0, dist=1e9;
+      tarjetas.forEach((t,i)=>{
+        const d = Math.abs((t.offsetLeft + t.clientWidth/2) - c);
+        if(d<dist){ dist=d; mejor=i; }
+      });
+      return mejor;
+    }
+    function pintarDots(){
+      if(!dots) return;
+      const a = actual();
+      [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===a));
+    }
+    let tmr;
+    packsWrap.addEventListener('scroll',()=>{
+      pintarDots();
+      // al soltar el dedo, selecciona el paquete que quedó centrado
+      clearTimeout(tmr);
+      tmr = setTimeout(()=>{ const t=tarjetas[actual()]; if(t) pintarPack(t); }, 140);
+    }, {passive:true});
+    const prev=$('packPrev'), next=$('packNext');
+    if(prev) prev.addEventListener('click',()=>irA(Math.max(0, actual()-1)));
+    if(next) next.addEventListener('click',()=>irA(Math.min(tarjetas.length-1, actual()+1)));
+    pintarDots();
     const dos = packsWrap.querySelector('.pack[data-units="2"]');
     const btnUp = $('nudgeUp');
     if(btnUp && dos) btnUp.addEventListener('click',()=>{
-      pintarPack(dos);
+      irA(tarjetas.indexOf(dos));
       if(window.gsap) gsap.fromTo(dos,{scale:1},{scale:1.04,duration:.2,yoyo:true,repeat:1,ease:'power2.out'});
     });
-    pintarPack(packsWrap.querySelector('.pack[data-units="1"]'));
+    pintarPack(tarjetas[0]);
+    pintarDots();
   }
 
   // ---- agregar al carrito ----
