@@ -596,12 +596,15 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
   .co-modal{
     display:flex;flex-direction:column;
     grid-template-columns:1fr;
-    top:0;right:0;bottom:0;left:0;            /* inset:0 = alto real del viewport */
+    top:0;right:0;bottom:0;left:0;
+    height:100dvh;                            /* dvh = alto REAL con la barra del navegador */
     transform:translateY(20px);
     width:auto;max-width:none;max-height:none;
     border-radius:0;border:none;
     overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   }
+  /* respaldo para navegadores sin dvh */
+  @supports not (height:100dvh){ .co-modal{height:100vh} }
   .co-modal.open{transform:translateY(0)}
   .co-main{overflow:visible;flex:1 0 auto;max-height:none}
   .co-head{position:sticky;top:0;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;z-index:5}
@@ -672,6 +675,34 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
   /* CARRITO */
   .cart-fab{right:16px;bottom:16px;width:54px;height:54px}
   .cart-drawer{width:100vw}
+
+  /* ---- COMPACTAR: la página era demasiado larga en celular ---- */
+  section{padding:52px 18px}
+  .sec-head{margin-bottom:34px}
+  .sec-head h2{font-size:clamp(30px,8.5vw,44px)}
+  .sec-head p{margin-top:14px;font-size:15px}
+
+  /* tarjetas de imagen: mucho más bajas */
+  .tcard3{min-height:300px}
+  .cov-card,.cov-card.feat{min-height:250px}
+  .cov-node{width:120px;height:120px}
+  .cov-node .core{width:76px;height:76px}
+  .cov-node .core img{width:46px;height:46px}
+  .cov-stem{height:38px;margin-top:12px}
+
+  /* galería e infografías: no a pantalla completa */
+  .gal{max-width:420px}
+  .chg-wrap,.chg-stats{max-width:460px}
+  .chg-item{padding:18px 18px}
+  .chg-item .d{font-size:12.5px}
+  .hw-img{max-width:380px}
+  .hw-step{padding:16px 0;gap:14px}
+  .hw-step:before{width:38px;height:38px;font-size:16px}
+  .hw-step h3{font-size:18px}
+  .hw-step p{font-size:14px;margin-top:5px}
+  .guar-img{max-width:340px}
+  .guar-copy h3{font-size:clamp(22px,6.5vw,30px)}
+  .col{padding:26px 22px}
 }
 @media(max-width:420px){
   .hero-h1{font-size:clamp(40px,13vw,58px)}
@@ -2204,6 +2235,37 @@ window.addEventListener('load',()=>{
     es.forEach(function(e){ if(e.isIntersecting){ show(); o.disconnect(); } });
   }, { threshold:0, rootMargin:'0px 0px -10% 0px' });
   io.observe(f);
+})();
+</script>
+<!-- ===== Checkout en celular: mantener a la vista el campo enfocado ===== -->
+<script>
+(function(){
+  var modal = document.getElementById('coModal');
+  if(!modal) return;
+
+  // Al enfocar un campo, el teclado tapa medio celular: subimos el campo a la vista.
+  modal.addEventListener('focusin', function(e){
+    var el = e.target;
+    if(!el.matches || !el.matches('input,select,textarea')) return;
+    if(window.innerWidth > 820) return;
+    setTimeout(function(){
+      try{ el.scrollIntoView({ block:'center', behavior:'smooth' }); }catch(_){}
+    }, 320);   // esperar a que el teclado termine de abrir
+  });
+
+  // Bloquear el scroll del fondo mientras el checkout está abierto
+  var y = 0;
+  new MutationObserver(function(){
+    var abierto = modal.classList.contains('open');
+    if(abierto && document.body.style.position !== 'fixed'){
+      y = window.scrollY;
+      document.body.style.cssText += ';position:fixed;top:' + (-y) + 'px;left:0;right:0;width:100%;';
+    } else if(!abierto && document.body.style.position === 'fixed'){
+      document.body.style.position=''; document.body.style.top='';
+      document.body.style.left=''; document.body.style.right=''; document.body.style.width='';
+      window.scrollTo(0, y);
+    }
+  }).observe(modal, { attributes:true, attributeFilter:['class'] });
 })();
 </script>
 </body>
