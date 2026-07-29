@@ -272,6 +272,29 @@ section{position:relative;padding:clamp(90px,13vh,170px) clamp(20px,5vw,80px)}
 
 /* ---------- offer / CTA ---------- */
 #comprar{max-width:1100px;margin:0 auto}
+
+/* ---------- garantía (bajo el bloque de compra) ---------- */
+.guar{margin-top:34px;display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(24px,3.5vw,48px);align-items:center;
+  border:1px solid var(--line);border-radius:28px;padding:clamp(22px,3vw,40px);
+  background:linear-gradient(160deg,rgba(10,22,50,.55),rgba(5,8,16,.75));backdrop-filter:blur(8px)}
+.guar-img{border-radius:20px;overflow:hidden;border:1px solid rgba(120,200,255,.22);cursor:none;position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.guar-img img{width:100%;height:auto;display:block;transition:transform .8s var(--easing)}
+.guar-img:hover img{transform:scale(1.04)}
+.guar-copy h3{font-family:'Clash Display';font-weight:600;font-size:clamp(25px,3vw,40px);margin-top:14px;letter-spacing:-.01em;line-height:1.04}
+.guar-copy p{color:var(--muted);margin-top:16px;font-size:16px;max-width:52ch}
+.guar-list{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:16px 22px;list-style:none}
+.guar-list li{display:grid;grid-template-columns:22px 1fr;gap:4px 10px;align-items:start}
+.guar-list .gi{grid-row:span 2;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(99,230,255,.14);border:1px solid rgba(99,230,255,.45);color:var(--cyan);font-size:12px;font-weight:700;margin-top:2px}
+.guar-list b{font-size:14.5px;font-weight:600;color:var(--ink)}
+.guar-list i{font-style:normal;font-size:13px;color:var(--muted-2);line-height:1.35}
+@media(max-width:860px){
+  .guar{grid-template-columns:1fr;gap:24px}
+  .guar-img{max-width:420px;margin:0 auto}
+  .guar-list{grid-template-columns:1fr}
+}
+
 .offer-box{border:1px solid rgba(120,200,255,.3);border-radius:32px;padding:clamp(36px,5vw,72px);position:relative;overflow:hidden;
   background:radial-gradient(120% 130% at 50% -10%,rgba(30,80,190,.4),rgba(6,12,28,.7))}
 .offer-box .glow2{position:absolute;left:50%;top:-30%;width:600px;height:600px;transform:translateX(-50%);background:radial-gradient(circle,rgba(70,160,255,.4),transparent 60%);filter:blur(20px);z-index:0}
@@ -928,6 +951,11 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
         <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3M11 8v6M8 11h6" stroke-linecap="round"/></svg></span>
         <figcaption>AQUAMID vs. lo de siempre</figcaption>
       </figure>
+      <figure class="gcard reveal" data-hover data-src="galeria/antes-despues.webp">
+        <img src="galeria/antes-despues.webp" loading="lazy" decoding="async" alt="Antes y después: regadera, boiler, lavadora y jarra sin sarro">
+        <span class="zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3M11 8v6M8 11h6" stroke-linecap="round"/></svg></span>
+        <figcaption>Antes y después en tus aparatos</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -979,6 +1007,24 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
           <a class="contact-link" href="https://wa.me/529999093173?text=Hola%2C%20tengo%20una%20duda%20sobre%20AQUAMID%20Anti%20Sarro" target="_blank" rel="noopener" data-hover>¿Dudas? Contáctanos</a>
           <div class="note">El pago y el envío se coordinan por WhatsApp al finalizar tu compra.</div>
         </div>
+      </div>
+    </div>
+
+    <!-- garantía: justo después del botón de compra, donde aparece la duda -->
+    <div class="guar reveal">
+      <figure class="guar-img" data-hover data-src="galeria/garantia.webp">
+        <img src="galeria/garantia.webp" loading="lazy" decoding="async" alt="Compra 100% garantizada: 60 días de devolución">
+      </figure>
+      <div class="guar-copy">
+        <span class="eyebrow" style="color:var(--cyan)">Compra sin riesgo</span>
+        <h3>Pruébalo 60 días.<br><span class="grad-ink">Si no te convence, te devolvemos tu dinero.</span></h3>
+        <p>Queremos que compruebes el cambio en tu propia agua. Si en 60 días no notas la diferencia en tu regadera, tus llaves o tus aparatos, nos escribes y te reembolsamos. Sin trámites raros ni letras chiquitas.</p>
+        <ul class="guar-list">
+          <li><span class="gi">✓</span><b>Compra segura</b><i>Pago protegido por Mercado Pago</i></li>
+          <li><span class="gi">✓</span><b>60 días de garantía</b><i>Tiempo de sobra para notarlo</i></li>
+          <li><span class="gi">✓</span><b>Devolución sin problemas</b><i>Un mensaje y listo</i></li>
+          <li><span class="gi">✓</span><b>Producto no tóxico</b><i>Seguro para toda la familia</i></li>
+        </ul>
       </div>
     </div>
   </section>
