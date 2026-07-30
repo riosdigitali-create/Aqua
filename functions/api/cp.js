@@ -12,7 +12,7 @@
  *   { ok:false, error:"..." }
  *
  * Diseño:
- *  - Consulta varios proveedores EN PARALELO con 5 s de presupuesto y se queda
+ *  - Consulta varios proveedores EN PARALELO con 2.5 s de presupuesto y se queda
  *    con el que traiga más colonias. En cadena, con dos proveedores caídos,
  *    el cliente esperaba 24 s en pleno checkout.
  *  - El estado SIEMPRE se resuelve, incluso sin red, con los rangos oficiales
@@ -87,7 +87,7 @@ function limpiaColonias(lista) {
 
 /* El User-Agent propio no se pone: los Workers lo sobrescriben y además parece
    contribuir a que algunos proveedores respondan 403. */
-async function pedir(url, ms = 5000) {
+async function pedir(url, ms = 2500) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -190,7 +190,7 @@ export async function onRequestGet({ request, env }) {
      guardado antes queda huérfano y se vuelve a consultar. Súbelo cada vez que
      cambie el formato de la respuesta o las reglas de validación — si no, una
      respuesta mala se queda servida hasta 24 h. */
-  const CACHE_V = '4';
+  const CACHE_V = '5';
   const debug = url.searchParams.get('debug') === '1';
   const cache = caches.default;
   const cacheKey = new Request(
@@ -202,7 +202,7 @@ export async function onRequestGet({ request, env }) {
 
   /* En PARALELO, no en cadena. Antes se consultaban uno tras otro y, como los
      dos primeros están caídos, el cliente esperaba 24 s en pleno checkout.
-     Ahora todos salen a la vez con 5 s de presupuesto y nos quedamos con el
+     Ahora todos salen a la vez con 2.5 s de presupuesto y nos quedamos con el
      mejor resultado válido: gana el que traiga MÁS colonias. */
   const intentos = [
     provSepomexHckdrk(cp),
