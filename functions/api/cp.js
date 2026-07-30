@@ -12,7 +12,9 @@
  *   { ok:false, error:"..." }
  *
  * Diseño:
- *  - Prueba varios proveedores en cadena. Si uno se cae, sigue el siguiente.
+ *  - Consulta varios proveedores EN PARALELO con 5 s de presupuesto y se queda
+ *    con el que traiga más colonias. En cadena, con dos proveedores caídos,
+ *    el cliente esperaba 24 s en pleno checkout.
  *  - El estado SIEMPRE se resuelve, incluso sin red, con los rangos oficiales
  *    del prefijo del C.P. (el front-end también lo hace por su cuenta).
  *  - Cachea 24 h en el borde de Cloudflare → casi todas las consultas salen
@@ -85,7 +87,7 @@ function limpiaColonias(lista) {
 
 /* El User-Agent propio no se pone: los Workers lo sobrescriben y además parece
    contribuir a que algunos proveedores respondan 403. */
-async function pedir(url, ms = 12000) {
+async function pedir(url, ms = 5000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -97,16 +99,6 @@ async function pedir(url, ms = 12000) {
   }
 }
 
-/* SEPOMEX es la fuente con los datos completos pero tarda; vale la pena
-   reintentar antes de conformarse con un proveedor pobre. Como el resultado
-   se cachea 24 h, esta espera la paga solo la primera visita de cada C.P. */
-async function conReintento(fn, veces = 2) {
-  let ultimo;
-  for (let i = 0; i < veces; i++) {
-    try { return await fn(); } catch (e) { ultimo = e; }
-  }
-  throw ultimo;
-}
 
 /* ------------------------------- proveedores ------------------------------ */
 
@@ -198,7 +190,7 @@ export async function onRequestGet({ request, env }) {
      guardado antes queda huérfano y se vuelve a consultar. Súbelo cada vez que
      cambie el formato de la respuesta o las reglas de validación — si no, una
      respuesta mala se queda servida hasta 24 h. */
-  const CACHE_V = '3';
+  const CACHE_V = '4';
   const debug = url.searchParams.get('debug') === '1';
   const cache = caches.default;
   const cacheKey = new Request(
@@ -208,11 +200,15 @@ export async function onRequestGet({ request, env }) {
     if (hit) return hit;
   }
 
+  /* En PARALELO, no en cadena. Antes se consultaban uno tras otro y, como los
+     dos primeros están caídos, el cliente esperaba 24 s en pleno checkout.
+     Ahora todos salen a la vez con 5 s de presupuesto y nos quedamos con el
+     mejor resultado válido: gana el que traiga MÁS colonias. */
   const intentos = [
-    () => conReintento(() => provSepomexHckdrk(cp)),
-    () => provIcalia(cp),
-    () => provCopomex(cp, env && env.COPOMEX_TOKEN),
-    () => provZippo(cp),
+    provSepomexHckdrk(cp),
+    provIcalia(cp),
+    provCopomex(cp, env && env.COPOMEX_TOKEN),
+    provZippo(cp),
   ];
 
   /* Red de seguridad: el estado que devuelve el proveedor TIENE que coincidir
@@ -231,21 +227,23 @@ export async function onRequestGet({ request, env }) {
   /* Un nombre de colonia real tiene vocales y no es una cadena aleatoria */
   const pareceNombre = v => /[aeiouáéíóú]/i.test(v) && /^[\p{L}\p{N}\s.,'’\-/()]+$/u.test(v);
 
+  const asentados = await Promise.allSettled(intentos);
+
   let res = null;
   const fallos = [];
-  for (const intento of intentos) {
-    try {
-      const r = await intento();
-      if (!coincideEstado(r.estado)) {
-        fallos.push(`${r.fuente}: estado "${r.estado}" no es ${estadoLocal} — datos descartados`);
-        continue;
-      }
-      const colonias = limpiaColonias(r.colonias).filter(pareceNombre);
-      if (colonias.length) { res = { ...r, colonias }; break; }
-      fallos.push(`${r.fuente}: sin colonias válidas`);
-    } catch (e) {
-      fallos.push(String((e && e.message) || e));
+  for (const s of asentados) {
+    if (s.status === 'rejected') {
+      fallos.push(String((s.reason && s.reason.message) || s.reason));
+      continue;
     }
+    const r = s.value;
+    if (!coincideEstado(r.estado)) {
+      fallos.push(`${r.fuente}: estado "${r.estado}" no es ${estadoLocal} — descartado`);
+      continue;
+    }
+    const colonias = limpiaColonias(r.colonias).filter(pareceNombre);
+    if (!colonias.length) { fallos.push(`${r.fuente}: sin colonias válidas`); continue; }
+    if (!res || colonias.length > res.colonias.length) res = { ...r, colonias };
   }
 
   /* ningún proveedor respondió: devolvemos al menos el estado, con ok:false
