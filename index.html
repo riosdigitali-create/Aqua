@@ -798,7 +798,19 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
 .field input.err,.field select.err{border-color:#ff6b6b;box-shadow:0 0 0 3px rgba(255,107,107,.12)}
 .field .msg{font-size:11.5px;color:#ff8585;margin-top:6px;display:none}
 .field .msg.show{display:block}
-.co-actions{display:flex;gap:12px;margin-top:24px}
+.co-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+/* nota bajo el resumen del pedido */
+.co-note{font-size:13px;color:var(--muted);margin-top:16px;line-height:1.55;
+  padding:13px 15px;border-radius:14px;border:1px solid var(--line);background:rgba(6,10,20,.5)}
+.co-note b{color:var(--ink)}
+.co-note[hidden]{display:none}
+/* WhatsApp: acción principal, en su propio renglón y a todo lo ancho */
+.co-btn.wa{flex:1 1 100%;order:-1;gap:9px;
+  background:linear-gradient(120deg,#25d366,#0fb84f);color:#03210f;
+  box-shadow:0 12px 34px -14px rgba(37,211,102,.7)}
+.co-btn.wa svg{width:18px;height:18px}
+.co-btn.wa[hidden]{display:none}
+.co-btn.ghost{background:var(--glass);border:1px solid var(--line);color:var(--ink)}
 .co-btn{flex:1;justify-content:center;border:none;cursor:none}
 .co-btn.primary{background:linear-gradient(120deg,var(--blue),var(--cyan));color:#04122e;box-shadow:0 12px 34px -14px rgba(60,160,255,.7)}
 .co-btn.back{flex:0 0 auto;padding-left:22px;padding-right:22px;background:var(--glass);border:1px solid var(--line);color:var(--ink)}
@@ -1753,7 +1765,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
       <div class="q reveal"><div class="qh" data-hover><h3>¿Cuánto dura una pieza?</h3><div class="pm"></div></div><div class="qa"><p>Cada pieza tiene una duración aproximada de 6 meses de liberación controlada, según el uso y las condiciones del agua de tu zona.</p></div></div>
       <div class="q reveal"><div class="qh" data-hover><h3>¿Qué significa "tecnología DUAL"?</h3><div class="pm"></div></div><div class="qa"><p>Que actúa en dos frentes al mismo tiempo: inhibe la formación de sarro y desinfecta el agua almacenada en el tinaco, todo en una sola pieza.</p></div></div>
       <div class="q reveal"><div class="qh" data-hover><h3>¿Sirve para agua muy dura?</h3><div class="pm"></div></div><div class="qa"><p>Sí. Está pensado para las condiciones reales del agua en México, incluyendo zonas donde el sarro se forma con mayor rapidez.</p></div></div>
-      <div class="q reveal"><div class="qh" data-hover><h3>¿Cómo lo compro?</h3><div class="pm"></div></div><div class="qa"><p>Agrégalo al carrito y presiona "Finalizar compra": llenas tus datos de envío, eliges paquetería y pagas de forma segura. Al terminar verás tu número de pedido y tu guía de rastreo en pantalla, y te llega la confirmación a tu correo. Puedes guardar o copiar el resumen de tu pedido desde esa misma pantalla.</p></div></div>
+      <div class="q reveal"><div class="qh" data-hover><h3>¿Cómo lo compro?</h3><div class="pm"></div></div><div class="qa"><p>Agrégalo al carrito y presiona "Finalizar compra": llenas tus datos de envío, eliges paquetería y pagas de forma segura. Al terminar verás tu número de pedido y tu guía de rastreo en pantalla. Desde ahí puedes mandarnos tu pedido por WhatsApp con un toque: así tu guía te queda guardada en tu chat y nosotros confirmamos tu envío.</p></div></div>
     </div>
   </section>
 
@@ -1788,7 +1800,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
         Finalizar compra
       </button>
-      <div class="cart-note">Envío con Skydropx · Pago seguro con Stripe</div>
+      <div class="cart-note">Envío con Envia.com · Pago seguro con Mercado Pago</div>
     </div>
   </aside>
   <div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5 9-11" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="toastMsg">Agregado al carrito</span></div>
@@ -1854,7 +1866,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
           <h3>Elige tu paquetería</h3>
           <p class="psub">Cotización en tiempo real para tu código postal.</p>
           <div id="rates"></div>
-          <div class="sky-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h13v8H3zM16 10h3l2 3v2h-5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg>Cotizado con <b>Skydropx</b> · guía generada al pagar</div>
+          <div class="sky-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h13v8H3zM16 10h3l2 3v2h-5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg>Cotizado con <b>Envia.com</b> · guía generada al pagar</div>
           <div class="co-actions">
             <button class="btn co-btn back" id="back1" data-hover>Atrás</button>
             <button class="btn co-btn primary" id="toStep3" data-hover>Continuar a pago</button>
@@ -1885,7 +1897,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
           <div class="pay-processing" id="payProcessing" style="display:none">
             <div class="spinner"></div>
             <div style="font-weight:600">Procesando pago…</div>
-            <div style="color:var(--muted);font-size:13px;margin-top:6px">Contactando a Stripe · generando guía Skydropx</div>
+            <div style="color:var(--muted);font-size:13px;margin-top:6px">Confirmando tu pago · generando tu guía de envío</div>
           </div>
         </div>
 
@@ -1900,17 +1912,24 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
               <div class="trow"><span>Cliente</span><b id="sm_name">—</b></div>
               <div class="trow"><span>Enviar a</span><b id="sm_addr">—</b></div>
               <div class="trow"><span>Paquetería</span><b id="sm_carrier">—</b></div>
-              <div class="trow"><span>Guía Skydropx</span><b class="guide" id="sm_guide">—</b></div>
+              <div class="trow"><span>Guía de envío</span><b class="guide" id="sm_guide">—</b></div>
               <div class="trow"><span>Entrega estimada</span><b id="sm_eta">—</b></div>
               <div class="trow"><span>Total pagado</span><b id="sm_total">—</b></div>
             </div>
-            <div class="co-note js-nowa" style="font-size:12.5px;color:var(--muted-2);margin-top:14px;line-height:1.5">
-              Guarda tu número de pedido y tu guía de rastreo. También te enviamos la confirmación a tu correo.
+            <div class="co-note js-wa" hidden>
+              <b>Mándanos tu pedido por WhatsApp</b> y tu número de guía te queda guardado
+              en tu propio chat, listo para rastrear tu envío cuando quieras.
+            </div>
+            <div class="co-note js-nowa">
+              Guarda tu número de pedido y tu guía: los necesitas para rastrear tu envío.
             </div>
             <div class="co-actions">
+              <button class="btn co-btn wa js-wa" id="coWA" hidden data-hover>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.5 14.1c-.2.6-1.3 1.2-1.8 1.2-.5 0-1 .2-3.4-.8-2.9-1.2-4.7-4.2-4.8-4.4-.1-.2-1.1-1.5-1.1-2.9 0-1.3.7-2 .9-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.8-1c.2-.2.4-.2.6-.1l2 1c.2.1.4.2.4.3.1.2.1.7-.1 1.1Z"/></svg>
+                Enviar mi pedido por WhatsApp
+              </button>
               <button class="btn co-btn back" id="coFinish" data-hover>Cerrar</button>
-              <button class="btn co-btn primary" id="coCopy" data-hover>Copiar resumen del pedido</button>
-              <button class="btn co-btn primary js-wa" id="coWA" hidden data-hover>Enviar comprobante por WhatsApp</button>
+              <button class="btn co-btn ghost" id="coCopy" data-hover>Copiar resumen</button>
             </div>
           </div>
         </div>
