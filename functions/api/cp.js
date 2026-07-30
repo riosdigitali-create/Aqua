@@ -184,9 +184,14 @@ export async function onRequestGet({ request, env }) {
     return json({ ok: false, cp, error: 'Ese C.P. no corresponde a ningún estado de México.' }, 404);
   }
 
-  /* caché del borde */
+  /* Caché del borde. CACHE_V forma parte de la llave: al subirlo, todo lo
+     guardado antes queda huérfano y se vuelve a consultar. Súbelo cada vez que
+     cambie el formato de la respuesta o las reglas de validación — si no, una
+     respuesta mala se queda servida hasta 24 h. */
+  const CACHE_V = '2';
   const cache = caches.default;
-  const cacheKey = new Request(new URL(`/api/cp?cp=${cp}`, url.origin).toString(), { method: 'GET' });
+  const cacheKey = new Request(
+    new URL(`/api/cp?cp=${cp}&v=${CACHE_V}`, url.origin).toString(), { method: 'GET' });
   const hit = await cache.match(cacheKey);
   if (hit) return hit;
 
