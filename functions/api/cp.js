@@ -2,31 +2,29 @@
  * GET /api/cp?cp=97000
  * ---------------------------------------------------------------------------
  * Devuelve estado, municipio, ciudad y la lista de COLONIAS de un código
- * postal mexicano, para que el checkout pueda autocompletar y forzar la
- * selección correcta (evita direcciones mal escritas → menos devoluciones
- * y menos envíos perdidos).
+ * postal mexicano, para que el checkout autocomplete y obligue a elegir la
+ * colonia correcta (menos direcciones mal escritas → menos devoluciones y
+ * menos envíos perdidos).
+ *
+ * FUENTE: Geocodes de Envia.com — la MISMA empresa que entrega el paquete.
+ *   https://geocodes.envia.com/zipcode/MX/{cp}
+ *   · No pide token ni cuenta.
+ *   · Responde en ~200 ms.
+ *   · Trae la lista completa de colonias en `suburbs`
+ *     (ej. C.P. 44100 → 25 colonias).
+ *
+ * Antes esto consultaba cuatro APIs comunitarias de SEPOMEX. Dos estaban
+ * caídas (timeout y error 525), otra devolvía datos ALEATORIOS con su token
+ * público de pruebas, y la única viva daba listas de 1 sola colonia. Aquello
+ * tardaba hasta 24 s en pleno checkout. Esto es una sola llamada, rápida,
+ * gratis y del proveedor que de verdad importa que valide la dirección.
  *
  * Respuesta:
- *   { ok:true, cp:"97000", estado:"Yucatán", municipio:"Mérida",
- *     ciudad:"Mérida", colonias:["Centro", ...], fuente:"sepomex-hckdrk" }
- *   { ok:false, error:"..." }
+ *   { ok:true, cp:"44100", estado:"Jalisco", municipio:"Guadalajara",
+ *     ciudad:"Guadalajara", colonias:["Americana", ...], fuente:"envia" }
+ *   { ok:false, cp, estado, colonias:[], error:"..." }
  *
- * Diseño:
- *  - Consulta varios proveedores EN PARALELO con 2.5 s de presupuesto y se queda
- *    con el que traiga más colonias. En cadena, con dos proveedores caídos,
- *    el cliente esperaba 24 s en pleno checkout.
- *  - El estado SIEMPRE se resuelve, incluso sin red, con los rangos oficiales
- *    del prefijo del C.P. (el front-end también lo hace por su cuenta).
- *  - Cachea 24 h en el borde de Cloudflare → casi todas las consultas salen
- *    de caché y no gastan cuota de los proveedores.
- *
- * Variable opcional en Cloudflare (Settings → Environment variables):
- *    COPOMEX_TOKEN   → token REAL de api.copomex.com. Sin él, ese proveedor
- *                      se salta: el token público 'pruebas' devuelve datos
- *                      aleatorios y le mostraría colonias inventadas al cliente.
- *
- * Toda respuesta se valida contra el estado que deduce el prefijo del C.P.
- * Si no coincide, se descarta. Preferimos no dar lista a dar una falsa.
+ * Con ?debug=1 añade el detalle del intento y no usa caché.
  * ---------------------------------------------------------------------------
  */
 
@@ -36,7 +34,9 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-/* prefijo (2 primeros dígitos) → estado. Rangos oficiales SEPOMEX. */
+/* prefijo (2 primeros dígitos) → estado. Rangos oficiales SEPOMEX.
+   Sirve de red de seguridad: si Envia contesta un estado que no cuadra con
+   el prefijo, descartamos la respuesta en vez de dar datos falsos. */
 const CP_EDO = [
   [1, 16, 'CDMX'], [20, 20, 'Aguascalientes'], [21, 22, 'Baja California'],
   [23, 23, 'Baja California Sur'], [24, 24, 'Campeche'], [25, 27, 'Coahuila'],
@@ -58,6 +58,16 @@ function estadoPorPrefijo(cp) {
   return '';
 }
 
+const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase().replace(/[^a-z]/g, '');
+const ALIAS = {
+  ciudaddemexico: 'cdmx', distritofederal: 'cdmx', df: 'cdmx',
+  mexico: 'estadodemexico', edomex: 'estadodemexico',
+  veracruzdeignaciodelallave: 'veracruz', michoacandeocampo: 'michoacan',
+  coahuiladezaragoza: 'coahuila',
+};
+const clave = s => { const k = norm(s); return ALIAS[k] || k; };
+
 const json = (obj, status = 200, extra = {}) =>
   new Response(JSON.stringify(obj), {
     status,
@@ -70,13 +80,15 @@ const json = (obj, status = 200, extra = {}) =>
     },
   });
 
-/* limpia y deduplica nombres de colonias */
+/* limpia, deduplica y ordena; descarta cadenas que no parezcan un nombre */
 function limpiaColonias(lista) {
   const out = [];
   const vistos = new Set();
   for (const raw of lista) {
     const v = String(raw || '').replace(/\s+/g, ' ').trim();
     if (!v) continue;
+    if (!/[aeiouáéíóú]/i.test(v)) continue;
+    if (!/^[\p{L}\p{N}\s.,'’\-/()]+$/u.test(v)) continue;
     const k = v.toLowerCase();
     if (vistos.has(k)) continue;
     vistos.add(k);
@@ -85,86 +97,41 @@ function limpiaColonias(lista) {
   return out.sort((a, b) => a.localeCompare(b, 'es'));
 }
 
-/* El User-Agent propio no se pone: los Workers lo sobrescriben y además parece
-   contribuir a que algunos proveedores respondan 403. */
-async function pedir(url, ms = 2500) {
+/* La respuesta viene como objeto indexado ("0", "1", ...) y un mismo C.P.
+   puede traer varias entradas; juntamos las colonias de todas. */
+async function consultaEnvia(cp, ms = 4000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
+  let d;
   try {
-    const r = await fetch(url, { signal: ctrl.signal, headers: { Accept: 'application/json' } });
+    const r = await fetch(`https://geocodes.envia.com/zipcode/MX/${cp}`, {
+      signal: ctrl.signal,
+      headers: { Accept: 'application/json' },
+    });
     if (!r.ok) throw new Error('http ' + r.status);
-    return await r.json();
+    d = await r.json();
   } finally {
     clearTimeout(t);
   }
-}
 
+  if (!d || d.success === false) throw new Error(d && d.message ? d.message : 'C.P. no encontrado');
 
-/* ------------------------------- proveedores ------------------------------ */
+  const filas = Object.keys(d)
+    .filter(k => /^\d+$/.test(k))
+    .map(k => d[k])
+    .filter(Boolean);
+  if (!filas.length) throw new Error('C.P. no encontrado');
 
-async function provSepomexHckdrk(cp) {
-  const d = await pedir(`https://api-sepomex.hckdrk.mx/query/info_cp/${cp}?type=simplified`);
-  const r = d && d.response;
-  if (!r) throw new Error('formato');
-  const col = Array.isArray(r.asentamiento) ? r.asentamiento
-            : r.asentamiento ? [r.asentamiento] : [];
-  return {
-    estado: r.estado || '',
-    municipio: r.municipio || '',
-    ciudad: r.ciudad || r.municipio || '',
-    colonias: col,
-    fuente: 'sepomex-hckdrk',
-  };
-}
-
-async function provIcalia(cp) {
-  const d = await pedir(`https://sepomex.icalialabs.com/api/v1/zip_codes?zip_code=${cp}`);
-  const rows = (d && d.zip_codes) || [];
-  if (!rows.length) throw new Error('vacío');
-  return {
-    estado: rows[0].d_estado || '',
-    municipio: rows[0].d_mnpio || '',
-    ciudad: rows[0].d_ciudad || rows[0].d_mnpio || '',
-    colonias: rows.map(r => r.d_asenta),
-    fuente: 'icalia-sepomex',
-  };
-}
-
-async function provCopomex(cp, token) {
-  // ⚠️ El token público 'pruebas' devuelve datos ALEATORIOS (estado "LFvRE",
-  // colonias "6dR9e6oOCAwwU"...). Sin un token real no usamos este proveedor.
-  const t = (token || '').trim();
-  if (!t || t.toLowerCase() === 'pruebas') throw new Error('sin token real de copomex');
-  const d = await pedir(`https://api.copomex.com/query/info_cp/${cp}?token=${encodeURIComponent(t)}`);
-  const arr = Array.isArray(d) ? d : [d];
-  const first = arr[0] && arr[0].response;
-  if (!first) throw new Error('formato');
   const colonias = [];
   let estado = '', municipio = '', ciudad = '';
-  for (const item of arr) {
-    const r = item && item.response;
-    if (!r) continue;
-    estado = estado || (r.estado || '');
-    municipio = municipio || (r.municipio || '');
-    ciudad = ciudad || (r.ciudad || r.municipio || '');
-    if (r.asentamiento) colonias.push(r.asentamiento);
-    if (Array.isArray(r.asentamientos)) colonias.push(...r.asentamientos);
+  for (const f of filas) {
+    estado    = estado    || (f.state && f.state.name) || '';
+    ciudad    = ciudad    || f.locality || '';
+    municipio = municipio || (f.regions && f.regions.region_2) || f.locality || '';
+    if (Array.isArray(f.suburbs)) colonias.push(...f.suburbs);
+    else if (f.suburbs) colonias.push(f.suburbs);
   }
-  return { estado, municipio, ciudad, colonias, fuente: 'copomex' };
-}
-
-/* solo estado/ciudad — último recurso, sin colonias */
-async function provZippo(cp) {
-  const d = await pedir(`https://api.zippopotam.us/mx/${cp}`);
-  const places = (d && d.places) || [];
-  if (!places.length) throw new Error('vacío');
-  return {
-    estado: places[0].state || '',
-    municipio: '',
-    ciudad: places[0]['place name'] || '',
-    colonias: places.map(p => p['place name']).filter(Boolean),
-    fuente: 'zippopotam',
-  };
+  return { estado, municipio, ciudad, colonias, fuente: 'envia' };
 }
 
 /* ------------------------------- handler --------------------------------- */
@@ -173,7 +140,7 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: CORS });
 }
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request }) {
   const url = new URL(request.url);
   const cp = (url.searchParams.get('cp') || '').replace(/\D/g, '').slice(0, 5);
 
@@ -186,11 +153,10 @@ export async function onRequestGet({ request, env }) {
     return json({ ok: false, cp, error: 'Ese C.P. no corresponde a ningún estado de México.' }, 404);
   }
 
-  /* Caché del borde. CACHE_V forma parte de la llave: al subirlo, todo lo
-     guardado antes queda huérfano y se vuelve a consultar. Súbelo cada vez que
-     cambie el formato de la respuesta o las reglas de validación — si no, una
-     respuesta mala se queda servida hasta 24 h. */
-  const CACHE_V = '5';
+  /* Caché del borde. CACHE_V es parte de la llave: súbelo cuando cambie el
+     formato de la respuesta o las reglas, si no una respuesta vieja se queda
+     servida hasta 24 h. */
+  const CACHE_V = '6';
   const debug = url.searchParams.get('debug') === '1';
   const cache = caches.default;
   const cacheKey = new Request(
@@ -200,79 +166,42 @@ export async function onRequestGet({ request, env }) {
     if (hit) return hit;
   }
 
-  /* En PARALELO, no en cadena. Antes se consultaban uno tras otro y, como los
-     dos primeros están caídos, el cliente esperaba 24 s en pleno checkout.
-     Ahora todos salen a la vez con 2.5 s de presupuesto y nos quedamos con el
-     mejor resultado válido: gana el que traiga MÁS colonias. */
-  const intentos = [
-    provSepomexHckdrk(cp),
-    provIcalia(cp),
-    provCopomex(cp, env && env.COPOMEX_TOKEN),
-    provZippo(cp),
-  ];
-
-  /* Red de seguridad: el estado que devuelve el proveedor TIENE que coincidir
-     con el que deduce el prefijo del C.P. Si no coincide, son datos basura
-     (o el proveedor se equivocó) y los descartamos. Vale más no dar lista de
-     colonias que dar una inventada: el cliente escribiría una dirección falsa. */
-  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                     .toLowerCase().replace(/[^a-z]/g, '');
-  const ALIAS = { ciudaddemexico: 'cdmx', distritofederal: 'cdmx', df: 'cdmx',
-                  mexico: 'estadodemexico', edomex: 'estadodemexico',
-                  veracruzdeignaciodelallave: 'veracruz', michoacandeocampo: 'michoacan',
-                  coahuiladezaragoza: 'coahuila' };
-  const clave = s => { const k = norm(s); return ALIAS[k] || k; };
-  const coincideEstado = e => !!e && clave(e) === clave(estadoLocal);
-
-  /* Un nombre de colonia real tiene vocales y no es una cadena aleatoria */
-  const pareceNombre = v => /[aeiouáéíóú]/i.test(v) && /^[\p{L}\p{N}\s.,'’\-/()]+$/u.test(v);
-
-  const asentados = await Promise.allSettled(intentos);
-
-  let res = null;
-  const fallos = [];
-  for (const s of asentados) {
-    if (s.status === 'rejected') {
-      fallos.push(String((s.reason && s.reason.message) || s.reason));
-      continue;
-    }
-    const r = s.value;
-    if (!coincideEstado(r.estado)) {
-      fallos.push(`${r.fuente}: estado "${r.estado}" no es ${estadoLocal} — descartado`);
-      continue;
-    }
-    const colonias = limpiaColonias(r.colonias).filter(pareceNombre);
-    if (!colonias.length) { fallos.push(`${r.fuente}: sin colonias válidas`); continue; }
-    if (!res || colonias.length > res.colonias.length) res = { ...r, colonias };
+  let r, fallo = null;
+  try {
+    r = await consultaEnvia(cp);
+  } catch (e) {
+    fallo = String((e && e.message) || e);
   }
 
-  /* ningún proveedor respondió: devolvemos al menos el estado, con ok:false
-     para que el front-end deje la colonia como texto libre y no frene la venta */
-  if (!res) {
+  /* El estado debe cuadrar con el prefijo del C.P. Si no, no damos la lista:
+     vale más dejar la colonia como texto libre que sugerir una equivocada. */
+  if (r && !(r.estado && clave(r.estado) === clave(estadoLocal))) {
+    fallo = `estado "${r.estado}" no cuadra con ${estadoLocal}`;
+    r = null;
+  }
+
+  const colonias = r ? limpiaColonias(r.colonias) : [];
+
+  if (!colonias.length) {
+    /* Sin lista, pero el front-end ya tiene el estado por el prefijo y deja
+       escribir la colonia a mano: la venta nunca se frena. */
     return json({
-      ok: false,
-      cp,
-      estado: estadoLocal,
-      colonias: [],
-      error: 'No pudimos verificar las colonias de este C.P.',
-      detalle: fallos,
+      ok: false, cp, estado: estadoLocal, colonias: [],
+      error: 'No pudimos obtener las colonias de este C.P.',
+      ...(debug ? { _detalle: fallo } : {}),
     }, 200);
   }
 
   const salida = {
-    ok: true,
-    cp,
-    estado: res.estado || estadoLocal,
-    municipio: res.municipio || '',
-    ciudad: res.ciudad || res.municipio || '',
-    colonias: res.colonias,
-    fuente: res.fuente,
+    ok: true, cp,
+    estado: r.estado || estadoLocal,
+    municipio: r.municipio || '',
+    ciudad: r.ciudad || r.municipio || '',
+    colonias,
+    fuente: r.fuente,
   };
 
-  /* ?debug=1 → muestra por qué falló cada proveedor. No se cachea. */
-  if (url.searchParams.get('debug') === '1') {
-    return json({ ...salida, _intentos: fallos }, 200, { 'Cache-Control': 'no-store' });
-  }
+  if (debug) return json({ ...salida, _detalle: fallo }, 200, { 'Cache-Control': 'no-store' });
 
   const out = json(salida);
   try { await cache.put(cacheKey, out.clone()); } catch (_) { /* caché opcional */ }
