@@ -2801,7 +2801,7 @@ window.addEventListener('load',()=>{
     cpMsg('load','Buscando colonias del C.P. '+cp+'…');
     try{
       const ctrl=new AbortController();
-      const to=setTimeout(()=>ctrl.abort(),7000);
+      const to=setTimeout(()=>ctrl.abort(),15000);   // SEPOMEX tarda; el cliente sigue llenando el resto mientras tanto
       const res=await fetch(API+'/api/cp?cp='+cp,{signal:ctrl.signal});
       clearTimeout(to);
       if(!res.ok) throw new Error('http '+res.status);
