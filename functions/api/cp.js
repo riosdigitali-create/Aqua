@@ -189,11 +189,14 @@ export async function onRequestGet({ request, env }) {
      cambie el formato de la respuesta o las reglas de validación — si no, una
      respuesta mala se queda servida hasta 24 h. */
   const CACHE_V = '2';
+  const debug = url.searchParams.get('debug') === '1';
   const cache = caches.default;
   const cacheKey = new Request(
     new URL(`/api/cp?cp=${cp}&v=${CACHE_V}`, url.origin).toString(), { method: 'GET' });
-  const hit = await cache.match(cacheKey);
-  if (hit) return hit;
+  if (!debug) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+  }
 
   const intentos = [
     () => provSepomexHckdrk(cp),
@@ -257,6 +260,11 @@ export async function onRequestGet({ request, env }) {
     colonias: res.colonias,
     fuente: res.fuente,
   };
+
+  /* ?debug=1 → muestra por qué falló cada proveedor. No se cachea. */
+  if (url.searchParams.get('debug') === '1') {
+    return json({ ...salida, _intentos: fallos }, 200, { 'Cache-Control': 'no-store' });
+  }
 
   const out = json(salida);
   try { await cache.put(cacheKey, out.clone()); } catch (_) { /* caché opcional */ }
