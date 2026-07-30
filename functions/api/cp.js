@@ -83,19 +83,29 @@ function limpiaColonias(lista) {
   return out.sort((a, b) => a.localeCompare(b, 'es'));
 }
 
-async function pedir(url, ms = 6000) {
+/* El User-Agent propio no se pone: los Workers lo sobrescriben y además parece
+   contribuir a que algunos proveedores respondan 403. */
+async function pedir(url, ms = 12000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
-    const r = await fetch(url, {
-      signal: ctrl.signal,
-      headers: { Accept: 'application/json', 'User-Agent': 'aquamid-cp/1.0' },
-    });
+    const r = await fetch(url, { signal: ctrl.signal, headers: { Accept: 'application/json' } });
     if (!r.ok) throw new Error('http ' + r.status);
     return await r.json();
   } finally {
     clearTimeout(t);
   }
+}
+
+/* SEPOMEX es la fuente con los datos completos pero tarda; vale la pena
+   reintentar antes de conformarse con un proveedor pobre. Como el resultado
+   se cachea 24 h, esta espera la paga solo la primera visita de cada C.P. */
+async function conReintento(fn, veces = 2) {
+  let ultimo;
+  for (let i = 0; i < veces; i++) {
+    try { return await fn(); } catch (e) { ultimo = e; }
+  }
+  throw ultimo;
 }
 
 /* ------------------------------- proveedores ------------------------------ */
@@ -188,7 +198,7 @@ export async function onRequestGet({ request, env }) {
      guardado antes queda huérfano y se vuelve a consultar. Súbelo cada vez que
      cambie el formato de la respuesta o las reglas de validación — si no, una
      respuesta mala se queda servida hasta 24 h. */
-  const CACHE_V = '2';
+  const CACHE_V = '3';
   const debug = url.searchParams.get('debug') === '1';
   const cache = caches.default;
   const cacheKey = new Request(
@@ -199,7 +209,7 @@ export async function onRequestGet({ request, env }) {
   }
 
   const intentos = [
-    () => provSepomexHckdrk(cp),
+    () => conReintento(() => provSepomexHckdrk(cp)),
     () => provIcalia(cp),
     () => provCopomex(cp, env && env.COPOMEX_TOKEN),
     () => provZippo(cp),
