@@ -19,8 +19,12 @@
  *    de caché y no gastan cuota de los proveedores.
  *
  * Variable opcional en Cloudflare (Settings → Environment variables):
- *    COPOMEX_TOKEN   → token de api.copomex.com (mejora la disponibilidad).
- *                      Sin él se usa el token público de pruebas.
+ *    COPOMEX_TOKEN   → token REAL de api.copomex.com. Sin él, ese proveedor
+ *                      se salta: el token público 'pruebas' devuelve datos
+ *                      aleatorios y le mostraría colonias inventadas al cliente.
+ *
+ * Toda respuesta se valida contra el estado que deduce el prefijo del C.P.
+ * Si no coincide, se descarta. Preferimos no dar lista a dar una falsa.
  * ---------------------------------------------------------------------------
  */
 
@@ -125,7 +129,10 @@ async function provIcalia(cp) {
 }
 
 async function provCopomex(cp, token) {
-  const t = token || 'pruebas';
+  // ⚠️ El token público 'pruebas' devuelve datos ALEATORIOS (estado "LFvRE",
+  // colonias "6dR9e6oOCAwwU"...). Sin un token real no usamos este proveedor.
+  const t = (token || '').trim();
+  if (!t || t.toLowerCase() === 'pruebas') throw new Error('sin token real de copomex');
   const d = await pedir(`https://api.copomex.com/query/info_cp/${cp}?token=${encodeURIComponent(t)}`);
   const arr = Array.isArray(d) ? d : [d];
   const first = arr[0] && arr[0].response;
@@ -190,14 +197,34 @@ export async function onRequestGet({ request, env }) {
     () => provZippo(cp),
   ];
 
+  /* Red de seguridad: el estado que devuelve el proveedor TIENE que coincidir
+     con el que deduce el prefijo del C.P. Si no coincide, son datos basura
+     (o el proveedor se equivocó) y los descartamos. Vale más no dar lista de
+     colonias que dar una inventada: el cliente escribiría una dirección falsa. */
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                     .toLowerCase().replace(/[^a-z]/g, '');
+  const ALIAS = { ciudaddemexico: 'cdmx', distritofederal: 'cdmx', df: 'cdmx',
+                  mexico: 'estadodemexico', edomex: 'estadodemexico',
+                  veracruzdeignaciodelallave: 'veracruz', michoacandeocampo: 'michoacan',
+                  coahuiladezaragoza: 'coahuila' };
+  const clave = s => { const k = norm(s); return ALIAS[k] || k; };
+  const coincideEstado = e => !!e && clave(e) === clave(estadoLocal);
+
+  /* Un nombre de colonia real tiene vocales y no es una cadena aleatoria */
+  const pareceNombre = v => /[aeiouáéíóú]/i.test(v) && /^[\p{L}\p{N}\s.,'’\-/()]+$/u.test(v);
+
   let res = null;
   const fallos = [];
   for (const intento of intentos) {
     try {
       const r = await intento();
-      const colonias = limpiaColonias(r.colonias);
+      if (!coincideEstado(r.estado)) {
+        fallos.push(`${r.fuente}: estado "${r.estado}" no es ${estadoLocal} — datos descartados`);
+        continue;
+      }
+      const colonias = limpiaColonias(r.colonias).filter(pareceNombre);
       if (colonias.length) { res = { ...r, colonias }; break; }
-      fallos.push(`${r.fuente}: sin colonias`);
+      fallos.push(`${r.fuente}: sin colonias válidas`);
     } catch (e) {
       fallos.push(String((e && e.message) || e));
     }
