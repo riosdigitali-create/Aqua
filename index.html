@@ -1091,7 +1091,7 @@ body.co-open nav,body.co-open .cart-fab{opacity:0!important;pointer-events:none!
    AQUAMID · CONFIGURACIÓN CENTRAL
    --------------------------------------------------------------------------
    ⬇️  CUANDO YA TENGAS EL NÚMERO DE WHATSAPP, ESCRÍBELO AQUÍ Y LISTO.
-   Formato: código de país + número, solo dígitos.  Ej: '529999093173'
+   Formato: código de país + número, solo dígitos.  Ej: '529999912353'
    Mientras esté vacío (''), TODOS los botones y enlaces de WhatsApp
    del sitio se ocultan solos — así no queda ningún enlace roto.
    ========================================================================== */
@@ -1774,7 +1774,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
       <div class="q reveal"><div class="qh" data-hover><h3>¿Cuánto dura una pieza?</h3><div class="pm"></div></div><div class="qa"><p>Cada pieza tiene una duración aproximada de 6 meses de liberación controlada, según el uso y las condiciones del agua de tu zona.</p></div></div>
       <div class="q reveal"><div class="qh" data-hover><h3>¿Qué significa "tecnología DUAL"?</h3><div class="pm"></div></div><div class="qa"><p>Que actúa en dos frentes al mismo tiempo: inhibe la formación de sarro y desinfecta el agua almacenada en el tinaco, todo en una sola pieza.</p></div></div>
       <div class="q reveal"><div class="qh" data-hover><h3>¿Sirve para agua muy dura?</h3><div class="pm"></div></div><div class="qa"><p>Sí. Está pensado para las condiciones reales del agua en México, incluyendo zonas donde el sarro se forma con mayor rapidez.</p></div></div>
-      <div class="q reveal"><div class="qh" data-hover><h3>¿Cómo lo compro?</h3><div class="pm"></div></div><div class="qa"><p>Agrégalo al carrito y presiona "Finalizar compra": llenas tus datos de envío, eliges paquetería y pagas de forma segura. Al terminar verás tu número de pedido y tu guía de rastreo en pantalla. Desde ahí puedes mandarnos tu pedido por WhatsApp con un toque: así tu guía te queda guardada en tu chat y nosotros confirmamos tu envío.</p></div></div>
+      <div class="q reveal"><div class="qh" data-hover><h3>¿Cómo lo compro?</h3><div class="pm"></div></div><div class="qa"><p>Agrégalo al carrito y presiona "Finalizar compra": llenas tus datos de envío, eliges paquetería y pagas de forma segura en Mercado Pago. Al aprobarse el pago preparamos tu envío y generamos la guía con la paquetería elegida. Puedes escribirnos por WhatsApp con tu referencia de pago para confirmar el seguimiento.</p></div></div>
     </div>
   </section>
 
@@ -1847,7 +1847,10 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
             <div class="field"><label>Correo electrónico</label><input id="f_email" type="email" placeholder="tucorreo@mail.com" autocomplete="email"><div class="msg">Correo no válido</div></div>
             <div class="field"><label>WhatsApp / Teléfono</label><input id="f_phone" type="tel" placeholder="10 dígitos" inputmode="numeric" autocomplete="tel"><div class="msg">10 dígitos</div></div>
           </div>
-          <div class="field"><label>Calle y número</label><input id="f_street" placeholder="Calle, número ext./int." autocomplete="address-line1"><div class="msg">Escribe tu dirección</div></div>
+          <div class="field row">
+            <div class="field"><label>Calle</label><input id="f_street" placeholder="Ej. Calle 60" autocomplete="address-line1"><div class="msg">Escribe tu calle</div></div>
+            <div class="field"><label>Número ext./int.</label><input id="f_number" placeholder="Ej. 123 Int. 4"><div class="msg">Escribe tu número</div></div>
+          </div>
           <div class="field row">
             <div class="field"><label>C.P.</label><input id="f_zip" placeholder="00000" inputmode="numeric" maxlength="5" autocomplete="postal-code"><div class="msg">5 dígitos</div></div>
             <div class="field">
@@ -1875,7 +1878,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
           <h3>Elige tu paquetería</h3>
           <p class="psub">Cotización en tiempo real para tu código postal.</p>
           <div id="rates"></div>
-          <div class="sky-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h13v8H3zM16 10h3l2 3v2h-5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg>Cotizado con <b>Envia.com</b> · guía generada al pagar</div>
+          <div class="sky-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h13v8H3zM16 10h3l2 3v2h-5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg>Tarifa cotizada en tiempo real con <b>Envia.com</b></div>
           <div class="co-actions">
             <button class="btn co-btn back" id="back1" data-hover>Atrás</button>
             <button class="btn co-btn primary" id="toStep3" data-hover>Continuar a pago</button>
@@ -1906,7 +1909,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
           <div class="pay-processing" id="payProcessing" style="display:none">
             <div class="spinner"></div>
             <div style="font-weight:600">Procesando pago…</div>
-            <div style="color:var(--muted);font-size:13px;margin-top:6px">Confirmando tu pago · generando tu guía de envío</div>
+            <div style="color:var(--muted);font-size:13px;margin-top:6px">Conectando de forma segura con Mercado Pago</div>
           </div>
         </div>
 
@@ -2612,7 +2615,7 @@ window.addEventListener('load',()=>{
     closeCart();
     if(typeof window.__openCheckout==='function'){
       // price = unitario CON descuento, para que envío y Mercado Pago cobren lo correcto
-      window.__openCheckout({units, price:Math.round(amount/units), name:NAME, tag:TAG, wa:WHATSAPP, img:IMG});
+      window.__openCheckout({units, subtotal:amount, price:amount/units, name:NAME, tag:TAG, wa:WHATSAPP, img:IMG});
     }
   });
 
@@ -2657,7 +2660,7 @@ window.addEventListener('load',()=>{
   const money = n => '$' + Math.round(n).toLocaleString('es-MX') + ' MXN';
   const $ = id => document.getElementById(id);
   const overlay=$('coOverlay'), modal=$('coModal');
-  let order=null, step=1, rates=[], selRate=0, paid=false;
+  let order=null, step=1, rates=[], selRate=0, paid=false, rateError='';
 
   // LIVE = publicado en Cloudflare (http/https) → usa /api real.
   // file:// (abierto local) → modo demo con tarifas de ejemplo.
@@ -2666,9 +2669,9 @@ window.addEventListener('load',()=>{
 
   function fallbackNormalized(){
     return [
-      {name:'Estafeta Terrestre',car:'EST',cls:'est',price:99, days:5,eta:'3 a 5 días hábiles'},
-      {name:'FedEx Express',      car:'FDX',cls:'fx', price:159,days:3,eta:'2 a 3 días hábiles'},
-      {name:'DHL eCommerce',      car:'DHL',cls:'dhl',price:229,days:2,eta:'1 a 2 días hábiles'}
+      {name:'Estafeta Terrestre',carrierId:'estafeta',serviceId:'ground',car:'EST',cls:'est',price:99, days:5,eta:'3 a 5 días hábiles'},
+      {name:'FedEx Express',carrierId:'fedex',serviceId:'express',car:'FDX',cls:'fx',price:159,days:3,eta:'2 a 3 días hábiles'},
+      {name:'DHL eCommerce',carrierId:'dhl',serviceId:'ground',car:'DHL',cls:'dhl',price:229,days:2,eta:'1 a 2 días hábiles'}
     ];
   }
   function carrierBadge(name){
@@ -2684,16 +2687,17 @@ window.addEventListener('load',()=>{
   const ENVIO_GRATIS_DESDE = 6;
   const envioGratis = () => !!order && order.units >= ENVIO_GRATIS_DESDE;
   const envioCobrado = () => (envioGratis() || !order || !order.shipping) ? 0 : order.shipping.price;
+  const subtotalOrden = () => order ? Number(order.subtotal ?? (order.units*order.price)) : 0;
 
   window.__openCheckout=function(o){
     order=Object.assign({shipping:null},o);
     paid=false; step=1; selRate=0;
     $('payForm').style.display=''; $('payProcessing').style.display='none';
     $('sumQty').textContent=order.units+(order.units>1?' piezas':' pieza');
-    $('sumSub').textContent=money(order.units*order.price);
+    $('sumSub').textContent=money(subtotalOrden());
     $('sumShip').textContent=envioGratis()?'GRATIS':'Por calcular';
-    $('sumTotal').textContent=money(order.units*order.price);
-    rates=[]; selRate=0;
+    $('sumTotal').textContent=money(subtotalOrden());
+    rates=[]; selRate=0; rateError='';
     setupPayUI();
     gotoStep(1);
     overlay.classList.add('open'); modal.classList.add('open');
@@ -2712,7 +2716,7 @@ window.addEventListener('load',()=>{
     document.querySelectorAll('.co-steps .st').forEach(s=>{
       const d=+s.dataset.step; s.classList.toggle('active',d===n); s.classList.toggle('done',d<n);
     });
-    const sub=order?order.units*order.price:0;
+    const sub=subtotalOrden();
     const ship=envioCobrado();
     $('payAmount').textContent=money(sub+ship).replace(' MXN','');
     const main=document.querySelector('.co-main'); if(main) main.scrollTop=0;
@@ -2723,13 +2727,14 @@ window.addEventListener('load',()=>{
   function setErr(el,on){ el.classList.toggle('err',on); const m=el.parentElement.querySelector('.msg'); if(m)m.classList.toggle('show',on); }
   function validStep1(){
     let ok=true;
-    const name=$('f_name'), email=$('f_email'), phone=$('f_phone'), street=$('f_street'),
+    const name=$('f_name'), email=$('f_email'), phone=$('f_phone'), street=$('f_street'), number=$('f_number'),
           zip=$('f_zip'), city=$('f_city'), state=$('f_state');
     const chk=(el,cond)=>{ setErr(el,!cond); if(!cond)ok=false; };
     chk(name, name.value.trim().length>2);
     chk(email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()));
     chk(phone, phone.value.replace(/\D/g,'').length===10);
     chk(street, street.value.trim().length>3);
+    chk(number, number.value.trim().length>0);
     chk(zip, zip.value.replace(/\D/g,'').length===5);
     chk(city, city.value.trim().length>1);
     chk(state, state.value!=='');
@@ -2895,17 +2900,22 @@ window.addEventListener('load',()=>{
   async function loadRates(){
     const box=$('rates');
     const zip=($('f_zip').value||'').replace(/\D/g,'');
-    selRate=0;
+    selRate=0; rateError='';
     if(LIVE){
       box.innerHTML='<div class="rate-load">Cotizando tu envío a C.P. '+zip+'…</div>';
       try{
         const res=await fetch(API+'/api/quote',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({cp:zip,qty:order.units,unitPrice:order.price})});
+          body:JSON.stringify({cp:zip,qty:order.units})});
         const data=await res.json();
+        if(!res.ok || data.fallback) throw new Error(data.error||'No hay tarifas reales disponibles');
         rates=(data.rates||[]).map(r=>{const b=carrierBadge(r.carrier);
-          return {name:((r.carrier||'')+' '+(r.service||'')).trim()||'Envío',car:b.car,cls:b.cls,price:r.price,days:r.days,eta:r.eta};});
-        if(!rates.length) rates=fallbackNormalized();
-      }catch(e){ rates=fallbackNormalized(); }
+          return {name:((r.carrier||'')+' '+(r.service||'')).trim()||'Envío',carrierId:r.carrierId,serviceId:r.serviceId,car:b.car,cls:b.cls,price:r.price,days:r.days,eta:r.eta};
+        }).filter(r=>r.carrierId && r.serviceId && Number(r.price)>0);
+        if(!rates.length) throw new Error('Envia no devolvió una tarifa utilizable');
+      }catch(e){
+        rates=[];
+        rateError='No pudimos cotizar un envío real en este momento. No se realizará ningún cobro. Intenta de nuevo o escríbenos por WhatsApp.';
+      }
     }else{
       rates=fallbackNormalized();
     }
@@ -2914,6 +2924,12 @@ window.addEventListener('load',()=>{
   function renderRates(){
     const zip=($('f_zip').value||'00000');
     const box=$('rates'); box.innerHTML='';
+    $('toStep3').disabled=!rates.length;
+    if(!rates.length){
+      if(order) order.shipping=null;
+      box.innerHTML='<div class="rate-load">'+(rateError||'No hay tarifas disponibles para este C.P.')+'</div>';
+      return;
+    }
     rates.forEach((r,i)=>{
       const el=document.createElement('div');
       el.className='rate'+(i===selRate?' sel':'');
@@ -2929,12 +2945,16 @@ window.addEventListener('load',()=>{
       if(order) order.shipping=r;
       const ship=envioCobrado();
       $('sumShip').textContent=envioGratis()?'GRATIS':money(ship).replace(' MXN','');
-      $('sumTotal').textContent=money(order.units*order.price+ship);
-      $('payAmount').textContent=money(order.units*order.price+ship).replace(' MXN','');
+      $('sumTotal').textContent=money(subtotalOrden()+ship);
+      $('payAmount').textContent=money(subtotalOrden()+ship).replace(' MXN','');
     }
   }
   $('back1').addEventListener('click',()=>gotoStep(1));
-  $('toStep3').addEventListener('click',()=>{ if(rates[selRate]&&order) order.shipping=rates[selRate]; gotoStep(3); });
+  $('toStep3').addEventListener('click',()=>{
+    if(!rates[selRate] || !order) return;
+    order.shipping=rates[selRate];
+    gotoStep(3);
+  });
 
   /* ---------- STEP 3 Stripe ---------- */
   const cNum=$('c_num'), cExp=$('c_exp'), cCvc=$('c_cvc'), cBrand=$('cBrand');
@@ -3009,11 +3029,14 @@ window.addEventListener('load',()=>{
       try{
         const res=await fetch(API+'/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({
-            qty:order.units, unitPrice:order.price,
+            qty:order.units, subtotal:subtotalOrden(),
             shipping:envioCobrado(),
             carrier:order.shipping?order.shipping.name:'',
+            carrierId:order.shipping?order.shipping.carrierId:'',
+            serviceId:order.shipping?order.shipping.serviceId:'',
             name:$('f_name').value.trim(), email:$('f_email').value.trim(), phone:$('f_phone').value,
-            street:$('f_street').value.trim(), hood:$('f_hood').value.trim(),
+            street:$('f_street').value.trim(), number:$('f_number').value.trim(),
+            district:$('f_hood').value.trim(), hood:$('f_hood').value.trim(),
             city:$('f_city').value.trim(), state:$('f_state').value, zip:$('f_zip').value
           })});
         const data=await res.json();
@@ -3040,11 +3063,11 @@ window.addEventListener('load',()=>{
     const oid='AQM-'+pad(Math.floor(Math.random()*900000+100000),6);
     const guide=r.car+'-'+pad(Math.floor(Math.random()*9e9+1e9),10);
     const eta=new Date(Date.now()+r.days*864e5).toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
-    const total=order.units*order.price+envioCobrado();
+    const total=subtotalOrden()+envioCobrado();
     order._receipt={oid,guide,eta,total};
     $('ordId').textContent='Pedido #'+oid;
     $('sm_name').textContent=$('f_name').value.trim();
-    $('sm_addr').textContent=$('f_street').value.trim()+', '+$('f_hood').value.trim()+', '+$('f_city').value.trim()+', '+$('f_state').value+' '+$('f_zip').value;
+    $('sm_addr').textContent=$('f_street').value.trim()+' '+$('f_number').value.trim()+', '+$('f_hood').value.trim()+', '+$('f_city').value.trim()+', '+$('f_state').value+' '+$('f_zip').value;
     $('sm_carrier').textContent=r.name;
     $('sm_guide').textContent=guide;
     $('sm_eta').textContent=eta;
@@ -3061,7 +3084,7 @@ window.addEventListener('load',()=>{
       'Comprobante de compra · AQUAMID',
       '',
       'Pedido: '+rc.oid,
-      '• '+order.units+' x '+order.name+' — '+money(order.units*order.price),
+      '• '+order.units+' x '+order.name+' — '+money(subtotalOrden()),
       'Envío ('+r.name+'): '+(envioGratis()?'GRATIS':money(envioCobrado())),
       'Total pagado: '+money(rc.total),
       '',

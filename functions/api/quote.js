@@ -29,6 +29,21 @@ export const BOX = {
   height: 12
 };
 
+const PACK_PRICES = [
+  { units: 1, total: 299 },
+  { units: 3, total: 497 },
+  { units: 6, total: 597 },
+  { units: 9, total: 697 }
+];
+
+function productTotal(qty) {
+  let best = Infinity;
+  for (const pack of PACK_PRICES) {
+    best = Math.min(best, qty <= pack.units ? pack.total : Math.round(qty * (pack.total / pack.units)));
+  }
+  return best;
+}
+
 export async function onRequestOptions() {
   return cors(new Response(null, { status: 204 }));
 }
@@ -39,12 +54,11 @@ export async function onRequestPost(context) {
     const body = await request.json().catch(() => ({}));
     const cp = String(body.cp || '').replace(/\D/g, '').slice(0, 5);
     const qty = Math.max(1, parseInt(body.qty) || 1);
-    const unit = Number(body.unitPrice || 299);
     if (cp.length !== 5) return json({ error: 'C.P. inválido' }, 400);
 
     const TOKEN = env.ENVIA_TOKEN;
-    // Sin token todavía -> devolvemos tarifas de ejemplo para que la tienda funcione.
-    if (!TOKEN) return json({ rates: fallbackRates(), fallback: true, reason: 'sin ENVIA_TOKEN' });
+    // En producción nunca inventamos una tarifa: sin token se detiene el checkout.
+    if (!TOKEN) return json({ error: 'El servicio de envíos no está configurado.' }, 503);
 
     const payload = {
       origin: {
@@ -78,7 +92,7 @@ export async function onRequestPost(context) {
         type: 'box',
         weight: BOX.weightPerUnitKg * qty,
         insurance: 0,
-        declaredValue: unit * qty,
+        declaredValue: productTotal(qty),
         weightUnit: 'KG',
         lengthUnit: 'CM',
         dimensions: { length: BOX.length, width: BOX.width, height: BOX.height }
@@ -131,16 +145,13 @@ export async function onRequestPost(context) {
 
     if (!rates.length) {
       return json({
-        rates: fallbackRates(),
-        fallback: true,
-        note: 'Sin tarifas de Envia; usando ejemplo.',
-        enviaErrors: errors.slice(0, 5),
-        enviaRaw: JSON.stringify(results).slice(0, 1500)
-      });
+        error: 'Envia no devolvió tarifas para ese destino.',
+        detail: errors.slice(0, 3)
+      }, 502);
     }
     return json({ rates });
   } catch (e) {
-    return json({ rates: fallbackRates(), fallback: true, error: String(e) });
+    return json({ error: 'No se pudo cotizar el envío.', detail: String(e) }, 502);
   }
 }
 
@@ -181,14 +192,6 @@ function cleanEta(est) {
   const one = s.match(/^(\d+)/);
   if (one) return `${one[1]} días hábiles`;
   return s;
-}
-
-function fallbackRates() {
-  return [
-    { id: 'est', carrier: 'Estafeta', service: 'Terrestre', price: 99, days: 5, eta: '3 a 5 días hábiles' },
-    { id: 'fdx', carrier: 'FedEx', service: 'Express', price: 159, days: 3, eta: '2 a 3 días hábiles' },
-    { id: 'dhl', carrier: 'DHL', service: 'eCommerce', price: 229, days: 2, eta: '1 a 2 días hábiles' }
-  ];
 }
 
 function json(obj, status = 200) {
