@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Envíos · AQUAMID</title>
+<style>
+  :root{
+    --bg:#05070d; --panel:#0a1120; --line:rgba(140,170,230,.16);
+    --ink:#e8eefc; --muted:#8fa0c4; --cyan:#63e6ff; --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px}
+  a{color:var(--cyan)}
+  header{position:sticky;top:0;z-index:5;background:rgba(5,7,13,.92);backdrop-filter:blur(10px);
+         border-bottom:1px solid var(--line);padding:16px 22px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  h1{font-size:18px;margin:0;letter-spacing:.02em}
+  .sp{flex:1}
+  select,input,button{font:inherit;color:var(--ink);background:#0d1526;border:1px solid var(--line);
+       border-radius:9px;padding:9px 12px;outline:none}
+  input:focus,select:focus{border-color:var(--cyan)}
+  button{cursor:pointer;background:linear-gradient(120deg,#2f7bff,#63e6ff);color:#04122e;font-weight:700;border:none}
+  button.ghost{background:#0d1526;color:var(--ink);border:1px solid var(--line);font-weight:500}
+  main{padding:22px}
+  .msg{padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin-bottom:18px}
+  .msg.err{border-color:rgba(248,113,113,.5);color:#ffd9d9}
+  .wrap{border:1px solid var(--line);border-radius:14px;overflow:auto;background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:960px}
+  th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+     background:#0b1322;position:sticky;top:0}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(99,230,255,.04)}
+  .guia{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+  .dir{color:var(--muted);font-size:13px;max-width:320px;line-height:1.45}
+  .pill{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;
+        letter-spacing:.05em;text-transform:uppercase;background:rgba(140,170,230,.12);color:var(--muted)}
+  .pill.ok{background:rgba(74,222,128,.14);color:var(--ok)}
+  .pill.go{background:rgba(251,191,36,.14);color:var(--warn)}
+  .pill.no{background:rgba(248,113,113,.14);color:var(--bad)}
+  .login{max-width:380px;margin:14vh auto;padding:28px;border:1px solid var(--line);
+         border-radius:16px;background:var(--panel)}
+  .login h2{margin:0 0 6px;font-size:20px}
+  .login p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.5}
+  .login input,.login button{width:100%;margin-bottom:10px;padding:12px}
+  .foot{color:var(--muted);font-size:12.5px;margin-top:14px;line-height:1.6}
+  .count{color:var(--muted);font-size:13px}
+  @media(max-width:640px){ main{padding:14px} header{padding:13px 15px} }
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+  <h2>Envíos AQUAMID</h2>
+  <p>Consulta directa a Envia.com. Escribe la clave del panel.</p>
+  <input id="key" type="password" placeholder="Clave del panel" autocomplete="current-password">
+  <button id="enter">Entrar</button>
+  <div id="loginErr" class="foot" style="color:#f87171"></div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <h1>Envíos AQUAMID</h1>
+    <select id="mes"></select>
+    <select id="anio"></select>
+    <input id="buscar" type="search" placeholder="Buscar cliente, guía o C.P.…" style="min-width:230px">
+    <span class="sp"></span>
+    <span id="count" class="count"></span>
+    <button id="recargar" class="ghost">Recargar</button>
+    <button id="csv" class="ghost">CSV</button>
+  </header>
+  <main>
+    <div id="estado" class="msg">Cargando…</div>
+    <div class="wrap" hidden id="wrap">
+      <table>
+        <thead><tr>
+          <th>Fecha</th><th>Cliente</th><th>Dirección</th><th>Paquetería</th>
+          <th>Guía</th><th>Estado</th><th>Ref. pago</th><th>Etiqueta</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+    <div class="foot">
+      La columna <b>Ref. pago</b> trae el ID del pago en Mercado Pago (<code>Pedido MP …</code>);
+      con ese número localizas el cobro en tu panel de MP.
+      Aquí solo aparecen los envíos cuya guía <b>sí</b> se generó.
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var KEY = sessionStorage.getItem('aqua_panel_key') || '';
+  var datos = [];
+
+  var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var hoy = new Date();
+
+  for (var m = 1; m <= 12; m++){
+    var o = document.createElement('option');
+    o.value = String(m).padStart(2,'0'); o.textContent = MESES[m-1];
+    if (m === hoy.getMonth()+1) o.selected = true;
+    $('mes').appendChild(o);
+  }
+  for (var a = hoy.getFullYear(); a >= hoy.getFullYear()-2; a--){
+    var oy = document.createElement('option');
+    oy.value = String(a); oy.textContent = String(a);
+    $('anio').appendChild(oy);
+  }
+
+  // Abierto con doble clic (file://) no hay servidor: /api/pedidos no existe.
+  var LIVE = /^https?:$/.test(location.protocol);
+  if (!LIVE){
+    $('login').innerHTML =
+      '<h2>Falta publicarlo</h2>' +
+      '<p>Esta página está abierta desde tu disco, así que no hay servidor que consulte a Envia.com.</p>' +
+      '<p>Súbela al repositorio junto con <code>functions/api/pedidos.js</code> y ábrela en ' +
+      '<b>antisarro.shop/pedidos.html</b>. Ahí sí funciona.</p>';
+    return;
+  }
+
+  function entrar(){
+    var k = $('key').value.trim();
+    if (!k) return;
+    KEY = k;
+    sessionStorage.setItem('aqua_panel_key', k);
+    $('login').hidden = true; $('app').hidden = false;
+    cargar();
+  }
+  $('enter').addEventListener('click', entrar);
+  $('key').addEventListener('keydown', function(e){ if (e.key === 'Enter') entrar(); });
+
+  if (KEY){ $('login').hidden = true; $('app').hidden = false; cargar(); }
+
+  $('recargar').addEventListener('click', cargar);
+  $('mes').addEventListener('change', cargar);
+  $('anio').addEventListener('change', cargar);
+  $('buscar').addEventListener('input', pinta);
+  $('csv').addEventListener('click', exporta);
+
+  function cargar(){
+    $('wrap').hidden = true;
+    $('estado').hidden = false;
+    $('estado').className = 'msg';
+    $('estado').textContent = 'Consultando Envia.com…';
+    $('count').textContent = '';
+
+    fetch('/api/pedidos?mes=' + $('mes').value + '&anio=' + $('anio').value,
+          { headers: { 'x-panel-key': KEY } })
+      .then(function(r){ return r.json().then(function(j){ return { ok:r.ok, status:r.status, j:j }; }); })
+      .then(function(res){
+        if (!res.ok){
+          if (res.status === 401){
+            sessionStorage.removeItem('aqua_panel_key');
+            $('app').hidden = true; $('login').hidden = false;
+            $('loginErr').textContent = 'Clave incorrecta.';
+            return;
+          }
+          error(res.j.error || ('Error ' + res.status), res.j.detalle);
+          return;
+        }
+        datos = res.j.envios || [];
+        pinta();
+      })
+      .catch(function(e){ error('No se pudo conectar con el panel.', String(e)); });
+  }
+
+  function error(t, d){
+    $('wrap').hidden = true;
+    $('estado').hidden = false;
+    $('estado').className = 'msg err';
+    $('estado').innerHTML = '<b>' + esc(t) + '</b>' + (d ? '<br><span style="opacity:.8;font-size:13px">' + esc(String(d)) + '</span>' : '');
+  }
+
+  function visibles(){
+    var q = $('buscar').value.trim().toLowerCase();
+    if (!q) return datos;
+    return datos.filter(function(e){
+      return [e.cliente, e.guia, e.direccion, e.paqueteria, e.referencia, e.telefono]
+        .join(' ').toLowerCase().indexOf(q) > -1;
+    });
+  }
+
+  function pinta(){
+    var lista = visibles();
+    $('count').textContent = lista.length + ' envío' + (lista.length === 1 ? '' : 's');
+
+    if (!lista.length){
+      $('wrap').hidden = true;
+      $('estado').hidden = false;
+      $('estado').className = 'msg';
+      $('estado').textContent = datos.length
+        ? 'Ningún envío coincide con la búsqueda.'
+        : 'No hay envíos generados en este mes.';
+      return;
+    }
+    $('estado').hidden = true;
+    $('wrap').hidden = false;
+
+    $('tb').innerHTML = lista.map(function(e){
+      return '<tr>' +
+        '<td>' + esc(fecha(e.fecha)) + '</td>' +
+        '<td>' + esc(e.cliente || '—') +
+          (e.telefono ? '<br><span class="dir">' + esc(e.telefono) + '</span>' : '') + '</td>' +
+        '<td class="dir">' + esc(e.direccion || '—') + '</td>' +
+        '<td>' + esc(e.paqueteria || '—') +
+          (e.servicio ? '<br><span class="dir">' + esc(e.servicio) + '</span>' : '') + '</td>' +
+        '<td class="guia">' + esc(e.guia || '—') + '</td>' +
+        '<td>' + estado(e.estado) + '</td>' +
+        '<td class="dir">' + esc(e.referencia || '—') + '</td>' +
+        '<td>' + (e.etiqueta ? '<a href="' + esc(e.etiqueta) + '" target="_blank" rel="noopener">PDF</a>' : '—') + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function estado(s){
+    var t = String(s || '').toLowerCase();
+    var c = 'pill';
+    if (/entreg|deliver/.test(t)) c += ' ok';
+    else if (/transit|camino|recolec|pickup/.test(t)) c += ' go';
+    else if (/cancel|error|excep|fail/.test(t)) c += ' no';
+    return '<span class="' + c + '">' + esc(s || 'sin estado') + '</span>';
+  }
+
+  function fecha(f){
+    if (!f) return '—';
+    var d = new Date(f);
+    if (isNaN(d)) return String(f).slice(0,16);
+    return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'}) + ' ' +
+           d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function exporta(){
+    var cols = ['fecha','cliente','telefono','direccion','paqueteria','servicio','guia','estado','referencia','etiqueta'];
+    var filas = [cols.join(',')].concat(visibles().map(function(e){
+      return cols.map(function(c){ return '"' + String(e[c] == null ? '' : e[c]).replace(/"/g,'""') + '"'; }).join(',');
+    }));
+    var url = URL.createObjectURL(new Blob(['﻿' + filas.join('\n')], {type:'text/csv;charset=utf-8'}));
+    var a = document.createElement('a');
+    a.href = url; a.download = 'envios-aquamid-' + $('anio').value + '-' + $('mes').value + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+  }
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+})();
+</script>
+</body>
+</html>
