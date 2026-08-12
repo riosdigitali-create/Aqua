@@ -538,6 +538,9 @@ footer{border-top:1px solid var(--line);padding:64px clamp(20px,5vw,80px) 40px;p
 .foot-col a{display:block;color:var(--muted);font-size:14.5px;margin-bottom:12px;transition:color .3s}
 .foot-col a:hover{color:var(--ink)}
 .foot-bottom{max-width:1400px;margin:0 auto;padding-top:28px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--muted-2);font-size:13px}
+/* Acceso interno al panel de envíos. Discreto a propósito: no es para el cliente. */
+.foot-panel{color:inherit;opacity:.35;text-decoration:none;margin-left:10px;font-size:12px;transition:opacity .3s}
+.foot-panel:hover{opacity:.9;color:var(--cyan)}
 .foot-big{font-family:'Clash Display';font-size:clamp(60px,17vw,260px);text-align:center;line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(120,160,240,.14);margin-top:40px;pointer-events:none;user-select:none}
 
 /* ---------- purchase card ---------- */
@@ -1981,7 +1984,7 @@ window.AQUA_EMAIL = '';     // ← (opcional) correo de contacto, ej. 'hola@aqua
   </div>
   <div class="foot-bottom">
     <span>© <span id="yr"></span> AQUAMID · Anti Sarro para Tinacos. Hecho en México.</span>
-    <span>Diseñado para hogares que cuidan su agua.</span>
+    <span>Diseñado para hogares que cuidan su agua. <a class="foot-panel" href="pedidos.html" rel="nofollow">Panel</a></span>
   </div>
   <div class="foot-big">AQUAMID</div>
 </footer>
